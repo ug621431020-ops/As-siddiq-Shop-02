@@ -1,0 +1,6 @@
+{
+  "name": "PackPro",
+  "description": "ระบบบันทึกวิดีโอและภาพถ่ายหลักฐานการแพ็คสินค้า เชื่อมต่อ Google Drive สำรองหลักฐาน และ Google Calendar นัดหมายขนส่งเข้ารับพัสดุ พร้อมแดชบอร์ดสรุปสถิติ",
+  "requestFramePermissions": ["camera", "microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

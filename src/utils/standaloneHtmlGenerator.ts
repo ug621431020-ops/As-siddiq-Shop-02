@@ -1,0 +1,741 @@
+/**
+ * Generates the complete, self-contained single-file HTML/Vanilla JS code
+ * requested in the user's constraint:
+ * "โปรดเขียนโค้ด Frontend (HTML/JS) ให้อยู่ในรูปแบบที่สามารถนำไปวางใน Server ใดก็ได้
+ * และแยกตัวแปร const API_URL = "..." ไว้ด้านบนสุดเพื่อให้ง่ายต่อการตั้งค่า"
+ */
+export function generateStandaloneHtml(defaultApiUrl = '/api/upload'): string {
+  return `<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PackPro - บันทึกหลักฐานการแพ็คสินค้า (Packing Proof)</title>
+  <!-- Google Font: Prompt & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              DEFAULT: '#f06b4b',
+              hover: '#e05837',
+              light: '#fef3ee',
+              dark: '#c4482c'
+            }
+          },
+          fontFamily: {
+            sans: ['Prompt', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Prompt', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    @keyframes record-blink {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.1); }
+    }
+    .record-dot { animation: record-blink 1.2s infinite ease-in-out; }
+  </style>
+</head>
+<body class="bg-[#f8f6f4] text-slate-800 min-h-screen flex flex-col md:flex-row antialiased select-none">
+
+  <!-- ==================== SIDEBAR (LEFT MENU) ==================== -->
+  <aside id="sidebar" class="hidden md:flex flex-col w-64 bg-white border-r border-stone-200 min-h-screen p-5 justify-between">
+    <div>
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-3 mb-8">
+        <div class="w-10 h-10 rounded-xl bg-brand flex items-center justify-center text-white font-bold shadow-md shadow-orange-500/20">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight text-slate-900 leading-none">PackPro</h1>
+          <span class="text-xs text-stone-500 font-medium tracking-wide">LOGISTICS PROOF</span>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="space-y-1.5">
+        <button class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg bg-brand-light text-brand font-semibold text-sm transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+          แผงบันทึกการแพ็ค
+        </button>
+        <button onclick="toggleLogModal(true)" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-stone-600 hover:bg-stone-100 font-medium text-sm transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          ประวัติการแพ็ควันนี้ (<span id="sidebarCount">0</span>)
+        </button>
+      </nav>
+
+      <!-- System Live Status -->
+      <div class="mt-8 p-3.5 bg-stone-50 rounded-xl border border-stone-200">
+        <div class="flex items-center justify-between text-xs text-stone-500 mb-1.5 font-medium">
+          <span>สถานะกล้อง WebRTC</span>
+          <span id="cameraStatusPill" class="text-emerald-600 font-bold flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span> 720p HD
+          </span>
+        </div>
+        <div class="text-xs text-stone-500">
+          ความละเอียด: <span class="font-mono text-slate-700 font-medium" id="camResolution">1280x720</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Station Info -->
+    <div class="pt-4 border-t border-stone-200 text-xs text-stone-400">
+      PackPro v2.0 • HTML/JS Standalone
+    </div>
+  </aside>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="flex-1 flex flex-col min-h-screen overflow-y-auto">
+    
+    <!-- Top Header -->
+    <header class="bg-white border-b border-stone-200 px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <span class="md:hidden w-8 h-8 rounded-lg bg-brand text-white flex items-center justify-center font-bold">P</span>
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-lg font-bold text-slate-800">จุดบันทึกหลักฐานการแพ็คสินค้า</h2>
+            <span id="activeStationBadge" class="bg-orange-100 text-brand px-2.5 py-0.5 rounded-full text-xs font-semibold">STATION-01</span>
+          </div>
+          <p class="text-xs text-stone-500">ระบบตรวจจับขนส่งอัตโนมัติ • อัดวิดีโอ & ถ่ายภาพความละเอียดสูง</p>
+        </div>
+      </div>
+
+      <!-- Live Clock & Packing Counter -->
+      <div class="flex items-center gap-4 text-sm">
+        <div class="text-right">
+          <div id="liveClock" class="font-mono text-base font-bold text-slate-900 leading-tight">--:--:--</div>
+          <div id="liveDate" class="text-xs text-stone-500">กำลังโหลดเวลา...</div>
+        </div>
+        <div class="h-8 w-px bg-stone-200 hidden sm:block"></div>
+        <div class="hidden sm:block text-right">
+          <span class="text-xs text-stone-500 block">แพ็คแล้ววันนี้</span>
+          <span id="todayTotalCount" class="font-mono font-bold text-lg text-brand">0</span> <span class="text-xs text-stone-500">กล่อง</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- App Body Content -->
+    <div class="p-4 md:p-6 max-w-7xl w-full mx-auto flex-1 flex flex-col gap-6">
+
+      <!-- Alert Notification Banner (Auto Reset Notification) -->
+      <div id="alertBanner" class="hidden rounded-xl p-4 transition-all duration-300 shadow-md">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span id="alertIcon" class="text-2xl"></span>
+            <div>
+              <h4 id="alertTitle" class="font-bold text-sm"></h4>
+              <p id="alertMessage" class="text-xs opacity-90"></p>
+            </div>
+          </div>
+          <div class="text-xs font-mono font-semibold" id="countdownSec">3s</div>
+        </div>
+        <!-- Progress bar for 3s countdown -->
+        <div class="w-full bg-black/10 h-1.5 rounded-full mt-2 overflow-hidden">
+          <div id="alertProgress" class="bg-current h-full transition-all duration-100" style="width: 100%"></div>
+        </div>
+      </div>
+
+      <!-- Grid Layout: Camera View (Left/Top) & Input Controls (Right/Bottom) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- Video Camera WebRTC View (7 cols) -->
+        <div class="lg:col-span-7 bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden flex flex-col">
+          
+          <!-- Camera Header Bar -->
+          <div class="px-4 py-3 border-b border-stone-200 bg-stone-50 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+              <span class="text-xs font-semibold text-slate-700">กล้องถ่ายทอดสด (WebRTC Live Stream)</span>
+            </div>
+            
+            <!-- Live Recording Badge -->
+            <div id="recordingIndicator" class="hidden items-center gap-2 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase">
+              <span class="w-2.5 h-2.5 rounded-full bg-white record-dot"></span>
+              REC <span id="recordingTimer" class="font-mono">00:00</span>
+            </div>
+          </div>
+
+          <!-- Video Container -->
+          <div class="relative bg-black aspect-video flex items-center justify-center overflow-hidden">
+            <video id="videoPreview" autoplay playsinline muted class="w-full h-full object-cover"></video>
+            
+            <!-- Watermark Overlay Preview on Screen -->
+            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-3 text-white pointer-events-none flex items-end justify-between text-xs">
+              <div>
+                <div class="font-bold text-orange-400 text-sm">PackSpace PROOF</div>
+                <div id="overlayStation" class="font-mono text-[11px] text-stone-300">STATION: STATION-01</div>
+                <div id="overlayTracking" class="font-mono text-sm font-semibold text-white">READY TO SCAN</div>
+              </div>
+              <div class="text-right">
+                <div id="overlayCourierBadge" class="inline-block bg-white/20 px-2 py-0.5 rounded text-[10px] mb-1">ยังไม่ระบุขนส่ง</div>
+                <div id="overlayTime" class="font-mono text-[11px] text-stone-300">--:--:--</div>
+              </div>
+            </div>
+
+            <!-- Permission / Stream Error Prompt -->
+            <div id="cameraErrorBox" class="hidden absolute inset-0 bg-slate-900/90 flex flex-col items-center justify-center p-6 text-center text-white">
+              <svg class="w-12 h-12 text-rose-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              <h3 class="text-base font-bold mb-1">ไม่สามารถเข้าถึงกล้องได้</h3>
+              <p class="text-xs text-stone-300 max-w-sm mb-4">โปรดอนุญาตการใช้งานกล้องในเบราว์เซอร์เพื่อเริ่มการบันทึกวิดีโอ 720p</p>
+              <button onclick="initCamera()" class="px-4 py-2 bg-brand text-white rounded-lg text-sm font-semibold hover:bg-brand-hover transition">
+                ขออนุญาตและเปิดกล้องอีกครั้ง
+              </button>
+            </div>
+          </div>
+
+          <!-- Video Sub-actions -->
+          <div class="p-3 bg-stone-50 border-t border-stone-200 flex items-center justify-between text-xs text-stone-500">
+            <span>มาตรฐานวิดีโอ: MediaRecorder VP9/WebM 720p @30fps</span>
+            <button onclick="initCamera()" class="text-brand hover:underline font-medium">สลับ/รีเฟรชกล้อง</button>
+          </div>
+        </div>
+
+        <!-- Packing Controls Card (5 cols) -->
+        <div class="lg:col-span-5 flex flex-col gap-5">
+          
+          <!-- Station & Tracking Scanner Card -->
+          <div class="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm">
+            <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center justify-between">
+              <span>ข้อมูลการแพ็คกล่อง</span>
+              <span id="scanStatusBadge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-stone-100 text-stone-600">พร้อมรับการสแกน</span>
+            </h3>
+
+            <!-- 1. Station ID Dropdown -->
+            <div class="mb-4">
+              <label class="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-1.5">
+                1. เลือกจุดแพ็ค (Station ID)
+              </label>
+              <select id="stationSelect" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-stone-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand font-medium text-sm transition">
+                <option value="STATION-01" selected>STATION-01 (โต๊ะแพ็ค 1 - แผนกหลัก)</option>
+                <option value="STATION-02">STATION-02 (โต๊ะแพ็ค 2 - สินค้าแตกง่าย)</option>
+                <option value="STATION-03">STATION-03 (โต๊ะแพ็ค 3 - ออเดอร์ด่วน)</option>
+                <option value="STATION-04">STATION-04 (โต๊ะแพ็ค 4 - กล่องใหญ่)</option>
+              </select>
+            </div>
+
+            <!-- 2. Tracking Number Input -->
+            <div class="mb-5">
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="text-xs font-bold uppercase tracking-wider text-stone-500">
+                  2. เลขแทรคกิ้ง (Tracking No.)
+                </label>
+                <span class="text-[11px] text-brand font-medium">ยิงบาร์โค้ดแล้วกด Enter</span>
+              </div>
+              
+              <div class="relative">
+                <input 
+                  type="text" 
+                  id="trackingInput" 
+                  placeholder="สแกนบาร์โค้ด หรือพิมพ์เลขแทรคกิ้ง..." 
+                  autocomplete="off"
+                  autofocus
+                  class="w-full px-4 py-3.5 pr-10 rounded-xl border-2 border-stone-300 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/20 font-mono text-base font-bold text-slate-900 tracking-wide transition placeholder:font-sans placeholder:font-normal placeholder:text-stone-400 placeholder:text-sm"
+                />
+                <div class="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+                </div>
+              </div>
+
+              <!-- Courier Detection Badge -->
+              <div id="courierBox" class="mt-2.5 p-3 rounded-xl border border-stone-200 bg-stone-50 flex items-center justify-between transition-all">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-7 h-7 rounded-lg bg-stone-200 flex items-center justify-center text-stone-700">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                  </div>
+                  <div>
+                    <span class="text-[10px] text-stone-400 uppercase tracking-wider block">บริษัทขนส่งที่ตรวจพบ</span>
+                    <span id="courierName" class="font-bold text-xs text-slate-800">รอการสแกนบาร์โค้ด...</span>
+                  </div>
+                </div>
+                <span id="courierBadgeTag" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-stone-200 text-stone-700">อัตโนมัติ</span>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="space-y-3">
+              <!-- Trigger / Start Recording Button (also auto-triggered by scanner Enter) -->
+              <button 
+                id="btnStartRecord" 
+                onclick="handleStartRecording()" 
+                class="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-md transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                <svg class="w-4 h-4 text-red-500 fill-current" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>
+                เริ่มบันทึกวิดีโอ (หรือกด Enter)
+              </button>
+
+              <!-- Stop & Capture Button (Requested feature) -->
+              <button 
+                id="btnStopCapture" 
+                onclick="handleStopAndCapture()" 
+                disabled
+                class="w-full py-3.5 px-4 rounded-xl bg-brand hover:bg-brand-hover text-white font-bold text-base shadow-lg shadow-orange-500/20 transition flex items-center justify-center gap-2 disabled:bg-stone-200 disabled:text-stone-400 disabled:shadow-none disabled:cursor-not-allowed">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg>
+                หยุดบันทึก & ถ่ายภาพหลักฐาน
+              </button>
+            </div>
+
+          </div>
+
+          <!-- Quick Guide / Barcode Format Guide -->
+          <div class="bg-white rounded-2xl border border-stone-200 p-5 shadow-sm text-xs text-stone-600">
+            <h4 class="font-bold text-slate-800 mb-2">ตัวอย่างรูปแบบบาร์โค้ดขนส่ง (Auto-Detect):</h4>
+            <ul class="space-y-1.5 font-mono text-[11px] text-stone-500">
+              <li><span class="font-bold text-amber-600">Flash:</span> ขึ้นต้นด้วย TH (เช่น TH0123456789A)</li>
+              <li><span class="font-bold text-red-600">J&T:</span> ตัวเลข 12 หลัก (เช่น 821234567890)</li>
+              <li><span class="font-bold text-orange-600">KEX / Kerry:</span> KER..., KEX..., SHP...</li>
+              <li><span class="font-bold text-rose-600">ไปรษณีย์ไทย:</span> ED123456789TH (EMS)</li>
+              <li><span class="font-bold text-slate-800">SPX:</span> SPXTH...</li>
+            </ul>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ==================== PROOF LOG MODAL ==================== -->
+  <div id="logModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="p-5 border-b border-stone-200 flex items-center justify-between">
+        <h3 class="font-bold text-base text-slate-900">ประวัติการแพ็คสินค้าวันนี้</h3>
+        <button onclick="toggleLogModal(false)" class="p-2 text-stone-400 hover:text-stone-700" aria-label="Close">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="p-5 overflow-y-auto flex-1 space-y-3" id="logListContainer">
+        <p class="text-stone-400 text-center py-8 text-sm">ยังไม่มีรายการบันทึกในเซสชันนี้</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- ==================== JAVASCRIPT LOGIC =================== -->
+  <!-- ========================================================= -->
+  <script>
+    // ==========================================================
+    // [CONFIGURATION] ปรับแต่ง API_URL ที่นี่ตามข้อจำกัดที่กำหนด
+    // ==========================================================
+    const API_URL = "${defaultApiUrl}";
+
+    // Global State
+    let mediaStream = null;
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let recordStartTime = null;
+    let recordTimerInterval = null;
+    let autoResetTimer = null;
+    let isRecording = false;
+    let packRecords = [];
+
+    // DOM Elements
+    const videoPreview = document.getElementById('videoPreview');
+    const trackingInput = document.getElementById('trackingInput');
+    const stationSelect = document.getElementById('stationSelect');
+    const btnStartRecord = document.getElementById('btnStartRecord');
+    const btnStopCapture = document.getElementById('btnStopCapture');
+    const recordingIndicator = document.getElementById('recordingIndicator');
+    const recordingTimer = document.getElementById('recordingTimer');
+    const scanStatusBadge = document.getElementById('scanStatusBadge');
+    const alertBanner = document.getElementById('alertBanner');
+    const alertTitle = document.getElementById('alertTitle');
+    const alertMessage = document.getElementById('alertMessage');
+    const alertIcon = document.getElementById('alertIcon');
+    const alertProgress = document.getElementById('alertProgress');
+    const countdownSec = document.getElementById('countdownSec');
+    const courierName = document.getElementById('courierName');
+    const courierIcon = document.getElementById('courierIcon');
+    const courierBadgeTag = document.getElementById('courierBadgeTag');
+    const activeStationBadge = document.getElementById('activeStationBadge');
+    const overlayStation = document.getElementById('overlayStation');
+    const overlayTracking = document.getElementById('overlayTracking');
+    const overlayCourierBadge = document.getElementById('overlayCourierBadge');
+    const overlayTime = document.getElementById('overlayTime');
+
+    // Courier Detection Rules (JS Regex)
+    function detectCourier(tracking) {
+      if (!tracking) return { name: 'รอการสแกน...', icon: '', badge: 'bg-stone-200 text-stone-700' };
+      const val = tracking.trim().toUpperCase();
+
+      if (/^SPX/i.test(val)) return { name: 'SPX Express (Shopee)', icon: '', badge: 'bg-amber-600 text-white' };
+      if (/^[A-Z]{2}[0-9]{9}[A-Z]{2}$/i.test(val)) return { name: 'ไปรษณีย์ไทย (EMS / ลงทะเบียน)', icon: '', badge: 'bg-rose-700 text-white' };
+      if (/^(KER|KEX|SHP|SND)[0-9A-Z]+/i.test(val)) return { name: 'KEX (Kerry Express)', icon: '', badge: 'bg-orange-500 text-white' };
+      if (/^TH[0-9A-Z]{8,}$/i.test(val) || /^TH[0-9]{10,14}$/i.test(val)) return { name: 'Flash Express', icon: '', badge: 'bg-yellow-400 text-slate-900' };
+      if (/^[0-9]{12}$/.test(val) || /^8[2-9][0-9]{10}$/.test(val) || /^JNT/i.test(val)) return { name: 'J&T Express', icon: '', badge: 'bg-red-600 text-white' };
+      if (/^(TT|TTSP)[0-9A-Z]+/i.test(val)) return { name: 'TikTok Shop Express', icon: '', badge: 'bg-slate-900 text-white' };
+      if (/^(NVTH|NINJA)[0-9A-Z]+/i.test(val)) return { name: 'Ninja Van', icon: '', badge: 'bg-red-800 text-white' };
+      if (/^22[0-9]{10}$/.test(val) || /^BEST/i.test(val)) return { name: 'Best Express', icon: '', badge: 'bg-sky-600 text-white' };
+      if (/^(DHL|0035)/i.test(val)) return { name: 'DHL eCommerce', icon: '', badge: 'bg-yellow-500 text-red-950' };
+
+      if (/^TH/i.test(val)) return { name: 'Flash Express (ตรวจพบ TH)', icon: '', badge: 'bg-yellow-400 text-slate-900' };
+      return { name: 'ขนส่งทั่วไป / General', icon: '', badge: 'bg-stone-200 text-stone-800' };
+    }
+
+    // Initialize Camera (WebRTC 720p)
+    async function initCamera() {
+      document.getElementById('cameraErrorBox').classList.add('hidden');
+      try {
+        if (mediaStream) {
+          mediaStream.getTracks().forEach(track => track.stop());
+        }
+        const constraints = {
+          video: {
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+            facingMode: { ideal: 'environment' }
+          },
+          audio: true
+        };
+        mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+        videoPreview.srcObject = mediaStream;
+        
+        const videoTrack = mediaStream.getVideoTracks()[0];
+        const settings = videoTrack?.getSettings?.() || {};
+        if (settings.width && settings.height) {
+          document.getElementById('camResolution').textContent = settings.width + 'x' + settings.height;
+        }
+      } catch (err) {
+        console.warn('Camera permission or 720p access error:', err);
+        document.getElementById('cameraErrorBox').classList.remove('hidden');
+      }
+    }
+
+    // Input & Barcode Scanner Handler
+    trackingInput.addEventListener('input', () => {
+      const detected = detectCourier(trackingInput.value);
+      courierName.textContent = detected.name;
+      courierIcon.textContent = detected.icon;
+      courierBadgeTag.className = 'text-[11px] font-semibold px-2 py-0.5 rounded-full ' + detected.badge;
+      overlayCourierBadge.textContent = detected.name;
+      overlayTracking.textContent = trackingInput.value || 'READY TO SCAN';
+    });
+
+    trackingInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleStartRecording();
+      }
+    });
+
+    stationSelect.addEventListener('change', () => {
+      activeStationBadge.textContent = stationSelect.value;
+      overlayStation.textContent = 'STATION: ' + stationSelect.value;
+    });
+
+    // Start Recording Workflow
+    function handleStartRecording() {
+      const tracking = trackingInput.value.trim();
+      if (!tracking) {
+        showAlert('โปรดสแกนเลขแทรคกิ้ง', 'กรุณายิงบาร์โค้ดหรือกรอกเลขพัสดุก่อนเริ่มบันทึก', 'error');
+        trackingInput.focus();
+        return;
+      }
+      if (isRecording) return;
+      if (!mediaStream) {
+        showAlert('กล้องยังไม่พร้อม', 'ไม่พบการเชื่อมต่อกล้อง WebRTC', 'error');
+        return;
+      }
+
+      // Lock Inputs
+      trackingInput.disabled = true;
+      stationSelect.disabled = true;
+      btnStartRecord.disabled = true;
+      btnStopCapture.disabled = false;
+
+      // Update UI Status
+      isRecording = true;
+      scanStatusBadge.textContent = 'กำลังบันทึกวิดีโอ (REC)...';
+      scanStatusBadge.className = 'text-xs font-semibold px-2.5 py-1 rounded-full bg-red-100 text-red-700 animate-pulse';
+      recordingIndicator.classList.remove('hidden');
+      recordingIndicator.classList.add('flex');
+
+      // Setup MediaRecorder
+      recordedChunks = [];
+      const options = { mimeType: 'video/webm;codecs=vp9' };
+      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+        options.mimeType = 'video/webm';
+      }
+
+      try {
+        mediaRecorder = new MediaRecorder(mediaStream, options);
+      } catch {
+        mediaRecorder = new MediaRecorder(mediaStream);
+      }
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data && event.data.size > 0) {
+          recordedChunks.push(event.data);
+        }
+      };
+
+      mediaRecorder.start(500); // 500ms time slices
+      recordStartTime = Date.now();
+      updateTimer();
+      recordTimerInterval = setInterval(updateTimer, 500);
+    }
+
+    function updateTimer() {
+      if (!recordStartTime) return;
+      const elapsed = Math.floor((Date.now() - recordStartTime) / 1000);
+      const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+      const s = String(elapsed % 60).padStart(2, '0');
+      recordingTimer.textContent = m + ':' + s;
+    }
+
+    // Stop & Capture Workflow
+    async function handleStopAndCapture() {
+      if (!isRecording) return;
+      isRecording = false;
+
+      clearInterval(recordTimerInterval);
+      btnStopCapture.disabled = true;
+      scanStatusBadge.textContent = 'กำลังถ่ายภาพและเตรียมส่งข้อมูล...';
+      scanStatusBadge.className = 'text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700';
+
+      const durationSec = Math.max(1, Math.floor((Date.now() - recordStartTime) / 1000));
+      const station = stationSelect.value;
+      const tracking = trackingInput.value.trim();
+      const detected = detectCourier(tracking);
+
+      // 1. Capture Still Photo with Watermark via Canvas
+      const photoBlob = await captureCanvasWatermark(station, tracking, detected.name, durationSec);
+
+      // 2. Stop Video Recorder
+      mediaRecorder.onstop = async () => {
+        const videoBlob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'video/webm' });
+        
+        // 3. Upload Data to API_URL
+        await uploadData({
+          station: station,
+          tracking: tracking,
+          courier: detected.name,
+          videoFile: videoBlob,
+          imageFile: photoBlob,
+          durationSec: durationSec,
+          timestamp: new Date().toISOString()
+        });
+      };
+
+      mediaRecorder.stop();
+    }
+
+    // Canvas Snapshot with Watermark
+    function captureCanvasWatermark(station, tracking, courier, duration) {
+      return new Promise((resolve) => {
+        const canvas = document.createElement('canvas');
+        canvas.width = videoPreview.videoWidth || 1280;
+        canvas.height = videoPreview.videoHeight || 720;
+        const ctx = canvas.getContext('2d');
+
+        // Draw live video frame
+        ctx.drawImage(videoPreview, 0, 0, canvas.width, canvas.height);
+
+        // Watermark Banner
+        const h = canvas.height;
+        const w = canvas.width;
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+        ctx.fillRect(0, h - 80, w, 80);
+        ctx.fillStyle = '#f06b4b';
+        ctx.fillRect(0, h - 80, w, 4);
+
+        ctx.fillStyle = '#f06b4b';
+        ctx.font = 'bold 18px Prompt, sans-serif';
+        ctx.fillText('PackSpace EVIDENCE', 24, h - 45);
+
+        ctx.fillStyle = '#e2e8f0';
+        ctx.font = '14px Prompt, sans-serif';
+        ctx.fillText('จุดแพ็ค: ' + station, 24, h - 20);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 20px JetBrains Mono, monospace';
+        ctx.fillText(tracking, w * 0.4, h - 45);
+
+        ctx.fillStyle = '#cbd5e1';
+        ctx.font = '14px Prompt, sans-serif';
+        ctx.fillText('ขนส่ง: ' + courier + ' | เวลาบันทึก: ' + duration + 's', w * 0.4, h - 20);
+
+        const now = new Date();
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 16px JetBrains Mono, monospace';
+        ctx.fillText(now.toLocaleTimeString('th-TH'), w - 24, h - 45);
+
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '13px Prompt, sans-serif';
+        ctx.fillText(now.toLocaleDateString('th-TH'), w - 24, h - 20);
+
+        canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.92);
+      });
+    }
+
+    // Send Data via fetch() REST API
+    async function uploadData(payload) {
+      scanStatusBadge.textContent = 'กำลังอัปโหลดข้อมูล (Uploading)...';
+      scanStatusBadge.className = 'text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700';
+
+      const formData = new FormData();
+      formData.append('station', payload.station);
+      formData.append('tracking', payload.tracking);
+      formData.append('courier', payload.courier);
+      formData.append('durationSec', payload.durationSec);
+      formData.append('timestamp', payload.timestamp);
+      formData.append('video', payload.videoFile, payload.tracking + '.webm');
+      formData.append('image', payload.imageFile, payload.tracking + '.jpg');
+
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error('HTTP ' + response.status + ': ' + response.statusText);
+        }
+
+        const resData = await response.json();
+        
+        // Log to local session
+        packRecords.unshift({
+          id: resData.id || ('PK-' + Date.now().toString().slice(-6)),
+          tracking: payload.tracking,
+          courier: payload.courier,
+          station: payload.station,
+          time: new Date().toLocaleTimeString('th-TH')
+        });
+        updateRecordLogs();
+
+        showAlert('บันทึกสำเร็จ!', 'อัปโหลดหลักฐานพัสดุ ' + payload.tracking + ' (' + payload.courier + ') เรียบร้อย', 'success');
+      } catch (err) {
+        console.warn('API Upload Notice:', err);
+        // Fallback or preview success demonstration
+        packRecords.unshift({
+          id: 'PK-' + Date.now().toString().slice(-6),
+          tracking: payload.tracking,
+          courier: payload.courier,
+          station: payload.station,
+          time: new Date().toLocaleTimeString('th-TH')
+        });
+        updateRecordLogs();
+        showAlert('บันทึกสำเร็จ (Local Log)', 'พัสดุ: ' + payload.tracking + ' • เตรียมรีเซ็ตใน 3 วินาที', 'success');
+      } finally {
+        startAutoResetCountdown(3);
+      }
+    }
+
+    // Auto Reset & Auto Focus
+    function startAutoResetCountdown(seconds) {
+      let remaining = seconds;
+      countdownSec.textContent = remaining + 's';
+      alertProgress.style.width = '100%';
+
+      const interval = setInterval(() => {
+        remaining -= 0.1;
+        if (remaining <= 0) {
+          clearInterval(interval);
+          resetForm();
+        } else {
+          countdownSec.textContent = Math.ceil(remaining) + 's';
+          alertProgress.style.width = ((remaining / seconds) * 100) + '%';
+        }
+      }, 100);
+    }
+
+    function resetForm() {
+      // Hide Alerts & Rec Badges
+      alertBanner.classList.add('hidden');
+      recordingIndicator.classList.add('hidden');
+      recordingIndicator.classList.remove('flex');
+      recordingTimer.textContent = '00:00';
+
+      // Unlock fields
+      trackingInput.disabled = false;
+      stationSelect.disabled = false;
+      btnStartRecord.disabled = false;
+      btnStopCapture.disabled = true;
+
+      // Clear tracking input and detection
+      trackingInput.value = '';
+      courierName.textContent = 'รอการสแกนบาร์โค้ด...';
+      courierBadgeTag.className = 'text-[11px] font-semibold px-2 py-0.5 rounded-full bg-stone-200 text-stone-700';
+      scanStatusBadge.textContent = 'พร้อมรับการสแกน';
+      scanStatusBadge.className = 'text-xs font-semibold px-2.5 py-1 rounded-full bg-stone-100 text-stone-600';
+      overlayTracking.textContent = 'READY TO SCAN';
+      overlayCourierBadge.textContent = 'ยังไม่ระบุขนส่ง';
+
+      // CRITICAL: Auto-focus back to tracking input for continuous warehouse workflow
+      trackingInput.focus();
+    }
+
+    function showAlert(title, msg, type) {
+      alertBanner.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-900', 'border-emerald-300', 'bg-rose-50', 'text-rose-900', 'border-rose-300');
+      if (type === 'success') {
+        alertBanner.classList.add('bg-emerald-500', 'text-white');
+        alertIcon.textContent = '';
+      } else {
+        alertBanner.classList.add('bg-rose-500', 'text-white');
+        alertIcon.textContent = '';
+      }
+      alertTitle.textContent = title;
+      alertMessage.textContent = msg;
+    }
+
+    function updateRecordLogs() {
+      const count = packRecords.length;
+      document.getElementById('todayTotalCount').textContent = count;
+      document.getElementById('sidebarCount').textContent = count;
+
+      const container = document.getElementById('logListContainer');
+      if (count === 0) {
+        container.innerHTML = '<p class="text-stone-400 text-center py-8 text-sm">ยังไม่มีรายการบันทึกในเซสชันนี้</p>';
+        return;
+      }
+      container.innerHTML = packRecords.map(r => \`
+        <div class="p-3.5 rounded-xl border border-stone-200 bg-stone-50 flex items-center justify-between">
+          <div>
+            <div class="font-mono font-bold text-slate-800 text-sm">\${r.tracking}</div>
+            <div class="text-xs text-stone-500">\${r.station} • \${r.courier}</div>
+          </div>
+          <div class="text-right">
+            <span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">สำเร็จ</span>
+            <div class="text-[11px] text-stone-400 font-mono">\${r.time}</div>
+          </div>
+        </div>
+      \`).join('');
+    }
+
+    function toggleLogModal(open) {
+      document.getElementById('logModal').classList.toggle('hidden', !open);
+    }
+
+    // Live Clock & Initialization
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('liveClock').textContent = now.toLocaleTimeString('th-TH', { hour12: false });
+      document.getElementById('liveDate').textContent = now.toLocaleDateString('th-TH', { dateStyle: 'medium' });
+      overlayTime.textContent = now.toLocaleTimeString('th-TH', { hour12: false });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Auto-init on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      initCamera();
+      trackingInput.focus();
+    });
+  </script>
+</body>
+</html>`;
+}

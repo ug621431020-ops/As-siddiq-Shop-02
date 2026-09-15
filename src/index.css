@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --primary: #f06b4b;
+    --primary-hover: #e05837;
+    --primary-light: #fef2ee;
+    --primary-ring: rgba(240, 107, 75, 0.25);
+  }
+
+  body {
+    font-family: 'Noto Sans Thai', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: #f8f6f4;
+    color: #1f2937;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  /* Mono font for barcodes and tracking numbers */
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Pulse animation for recording badge */
+@keyframes record-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.08);
+  }
+}
+
+.animate-record-pulse {
+  animation: record-pulse 1.2s infinite ease-in-out;
+}
