@@ -50,30 +50,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: 'แพ็คพัสดุ',
       icon: Video,
       badge: recordStatus === 'recording' ? 'REC' : null,
-      badgeColor: 'bg-red-500 text-white animate-pulse',
+      badgeColor: 'bg-red-500 text-white font-bold animate-pulse',
     },
     {
       id: 'dashboard' as const,
       label: 'แดชบอร์ด',
       icon: BarChart3,
-      badge: 'สถิติ',
-      badgeColor: 'bg-orange-100 text-[#f06b4b] font-bold',
+      badge: null,
+      badgeColor: '',
     },
     {
       id: 'drive' as const,
       label: 'Google Drive',
       icon: HardDrive,
-      badge: isGoogleConnected ? 'Sync' : 'Cloud',
-      badgeColor: isGoogleConnected 
-        ? 'bg-emerald-100 text-emerald-700 font-bold' 
-        : 'bg-amber-100 text-amber-800 font-medium',
+      badge: null,
+      badgeColor: '',
     },
     {
       id: 'calendar' as const,
       label: 'Google Calendar',
       icon: Calendar,
-      badge: 'ตารางนัด',
-      badgeColor: 'bg-blue-100 text-blue-700 font-medium',
+      badge: null,
+      badgeColor: '',
     },
     {
       id: 'history' as const,
@@ -91,10 +89,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
     },
     {
       id: 'export' as const,
-      label: 'โค้ด HTML เดี่ยว',
+      label: 'ส่งออกโค้ด',
       icon: Code2,
-      badge: 'PRO',
-      badgeColor: 'bg-[#fef3ee] text-[#f06b4b] border border-[#f06b4b]/30',
+      badge: null,
+      badgeColor: '',
     },
   ];
 

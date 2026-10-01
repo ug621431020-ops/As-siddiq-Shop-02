@@ -24,7 +24,7 @@ import { RecordStatus, PackRecord, AppConfig, PackingStation, PackerStaff } from
 import { User } from 'firebase/auth';
 import { initAuth, googleSignIn, googleSignOut } from './services/googleAuth';
 import { uploadProofToDrive, getOrCreateProofsFolder } from './services/googleDriveService';
-import { X, ExternalLink, FileVideo, Image as ImageIcon } from 'lucide-react';
+import { X, ExternalLink, FileVideo, Image as ImageIcon, Video, BarChart3, HardDrive, Calendar, History } from 'lucide-react';
 
 // Default system configuration
 const DEFAULT_CONFIG: AppConfig = {
@@ -696,7 +696,7 @@ export default function App() {
         />
 
         {/* View Switcher: Packing Console vs. Dashboard vs. Drive vs. Calendar */}
-        <main className="p-4 md:p-6 lg:p-8 max-w-[1680px] w-full mx-auto flex-1 flex flex-col gap-6">
+        <main className="p-3 sm:p-5 lg:p-6 pb-20 md:pb-8 max-w-[1680px] w-full mx-auto flex-1 flex flex-col gap-4 sm:gap-6">
           
           {activeTab === 'dashboard' ? (
             /* ================= VIEW 1: ANALYTICS DASHBOARD ================= */
@@ -731,10 +731,10 @@ export default function App() {
             />
           ) : (
             /* ================= VIEW 4: PACKING CONSOLE ================= */
-            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-start">
               
-              {/* 1. Camera Live Feed & Watermark Display */}
-              <div className="xl:col-span-7 flex flex-col gap-4">
+              {/* 1. Camera Live Feed & Watermark Display (7 cols on tablet/PC) */}
+              <div className="lg:col-span-7 xl:col-span-7 flex flex-col gap-3 sm:gap-4">
                 <CameraView
                   videoRef={videoRef}
                   recordStatus={recordStatus}
@@ -752,8 +752,8 @@ export default function App() {
                 />
               </div>
 
-              {/* 2. Packing Controls & Barcode Scanner Area */}
-              <div className="xl:col-span-5">
+              {/* 2. Packing Controls & Barcode Scanner Area (5 cols on tablet/PC) */}
+              <div className="lg:col-span-5 xl:col-span-5">
                 <PackingControls
                   stationId={stationId}
                   setStationId={setStationId}
@@ -784,13 +784,62 @@ export default function App() {
         </main>
 
         {/* Global Footer info */}
-        <footer className="px-6 py-2.5 border-t border-stone-200/80 bg-white text-xs text-stone-500 flex flex-wrap items-center justify-between gap-2">
+        <footer className="px-6 py-2.5 border-t border-stone-200/80 bg-white text-xs text-stone-500 hidden md:flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-800">ระบบบันทึกหลักฐานการแพ็คสินค้า</span>
-            <span>•</span>
+            <span className="font-semibold text-slate-700">PackSpace ระบบบันทึกหลักฐานการแพ็ค</span>
+            <span>·</span>
             <span>PRISM Verification Engine</span>
           </div>
         </footer>
+
+        {/* Mobile Bottom Navigation Bar (Smart touch navigation for phone screens) */}
+        <nav className="md:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-stone-200 z-30 flex items-center justify-around px-2 py-1.5 shadow-lg">
+          <button
+            onClick={() => setActiveTab('console')}
+            className={`flex flex-col items-center gap-1 py-1 px-3 rounded-lg text-[10px] transition min-h-[44px] justify-center ${
+              activeTab === 'console' ? 'text-[#f06b4b] font-bold' : 'text-stone-500 hover:text-slate-800 font-medium'
+            }`}
+          >
+            <Video className="w-4 h-4" />
+            <span>แพ็ค</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('dashboard')}
+            className={`flex flex-col items-center gap-1 py-1 px-3 rounded-lg text-[10px] transition min-h-[44px] justify-center ${
+              activeTab === 'dashboard' ? 'text-[#f06b4b] font-bold' : 'text-stone-500 hover:text-slate-800 font-medium'
+            }`}
+          >
+            <BarChart3 className="w-4 h-4" />
+            <span>แดชบอร์ด</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('drive')}
+            className={`flex flex-col items-center gap-1 py-1 px-3 rounded-lg text-[10px] transition min-h-[44px] justify-center ${
+              activeTab === 'drive' ? 'text-[#f06b4b] font-bold' : 'text-stone-500 hover:text-slate-800 font-medium'
+            }`}
+          >
+            <HardDrive className="w-4 h-4" />
+            <span>Drive</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('calendar')}
+            className={`flex flex-col items-center gap-1 py-1 px-3 rounded-lg text-[10px] transition min-h-[44px] justify-center ${
+              activeTab === 'calendar' ? 'text-[#f06b4b] font-bold' : 'text-stone-500 hover:text-slate-800 font-medium'
+            }`}
+          >
+            <Calendar className="w-4 h-4" />
+            <span>นัดรับ</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('history')}
+            className={`flex flex-col items-center gap-1 py-1 px-3 rounded-lg text-[10px] transition min-h-[44px] justify-center ${
+              activeTab === 'history' ? 'text-[#f06b4b] font-bold' : 'text-stone-500 hover:text-slate-800 font-medium'
+            }`}
+          >
+            <History className="w-4 h-4" />
+            <span>ประวัติ</span>
+          </button>
+        </nav>
 
       </div>
 

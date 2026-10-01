@@ -154,7 +154,7 @@ export const DriveView: React.FC<DriveViewProps> = ({
       await loadDriveData();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'เกิดข้อผิดพลาดในการอัปโหลด';
-      alert(`อัปโหลดไม่สำเร็จ: ${msg}`);
+      setError(`อัปโหลดไม่สำเร็จ: ${msg}`);
     } finally {
       setIsUploading(false);
       setUploadProgressText('');
@@ -174,7 +174,7 @@ export const DriveView: React.FC<DriveViewProps> = ({
       await loadDriveData();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'เกิดข้อผิดพลาด';
-      alert(`อัปโหลดไม่สำเร็จ: ${msg}`);
+      setError(`อัปโหลดไม่สำเร็จ: ${msg}`);
     } finally {
       setIsUploading(false);
       setUploadProgressText('');
@@ -192,7 +192,7 @@ export const DriveView: React.FC<DriveViewProps> = ({
       setDeletingFile(null);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'ไม่สามารถลบไฟล์ได้';
-      alert(`เกิดข้อผิดพลาดในการลบไฟล์: ${msg}`);
+      setError(`เกิดข้อผิดพลาดในการลบไฟล์: ${msg}`);
     } finally {
       setIsDeleting(false);
     }

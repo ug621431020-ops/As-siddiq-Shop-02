@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { AppConfig, PackingStation, PackerStaff } from '../types';
 import { processUploadedImage } from '../utils/imageUtils';
+import { ConfirmModal } from './ConfirmModal';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -84,6 +85,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [editPackerNickname, setEditPackerNickname] = useState('');
   const [editPackerRole, setEditPackerRole] = useState('');
   const [imageProcessingLoading, setImageProcessingLoading] = useState(false);
+  const [actionFeedback, setActionFeedback] = useState<{ type: 'error' | 'success'; message: string } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ type: 'station' | 'packer'; id: string; name: string } | null>(null);
 
   if (!isOpen) return null;
 
@@ -140,7 +143,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
     const formattedId = newStationId.trim().toUpperCase();
     if (stations.some((s) => s.id === formattedId)) {
-      alert(`รหัสโต๊ะ ${formattedId} มีอยู่ในระบบแล้ว`);
+      setActionFeedback({ type: 'error', message: `รหัสโต๊ะ ${formattedId} มีอยู่ในระบบแล้ว` });
       return;
     }
 
@@ -157,20 +160,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     setNewStationId('');
     setNewStationName('');
     setNewStationDesc('');
+    setActionFeedback({ type: 'success', message: `เพิ่มโต๊ะแพ็ค ${formattedId} สำเร็จ` });
   };
 
   const handleDeleteStation = (id: string) => {
     if (stations.length <= 1) {
-      alert('ระบบต้องมีโต๊ะแพ็คอย่างน้อย 1 โต๊ะ');
+      setActionFeedback({ type: 'error', message: 'ระบบต้องมีโต๊ะแพ็คอย่างน้อย 1 โต๊ะ' });
       return;
     }
-    if (window.confirm(`ยืนยันการลบโต๊ะแพ็ค ${id} ออกจากระบบ?`)) {
-      const updated = stations.filter((s) => s.id !== id);
-      onUpdateStations(updated);
-      if (formData.stationId === id) {
-        setFormData({ ...formData, stationId: updated[0].id });
-      }
-    }
+    const found = stations.find((s) => s.id === id);
+    setDeleteTarget({ type: 'station', id, name: found?.name || id });
   };
 
   const handleStartEditStation = (st: PackingStation) => {
@@ -211,7 +210,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
     const id = newPackerId.trim() || `OP-${String(packers.length + 1).padStart(2, '0')}`;
     if (packers.some((p) => p.id === id)) {
-      alert(`รหัสพนักงาน ${id} มีอยู่ในระบบแล้ว`);
+      setActionFeedback({ type: 'error', message: `รหัสพนักงาน ${id} มีอยู่ในระบบแล้ว` });
       return;
     }
 
@@ -233,23 +232,38 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     setNewPackerName('');
     setNewPackerNickname('');
     setNewPackerRole('พนักงานแพ็คสินค้า');
+    setActionFeedback({ type: 'success', message: `เพิ่มพนักงาน ${id} สำเร็จ` });
   };
 
   const handleDeletePacker = (id: string) => {
     if (packers.length <= 1) {
-      alert('ระบบต้องมีพนักงานผู้แพ็คอย่างน้อย 1 คน');
+      setActionFeedback({ type: 'error', message: 'ระบบต้องมีพนักงานผู้แพ็คอย่างน้อย 1 คน' });
       return;
     }
-    if (window.confirm(`ยืนยันการลบพนักงาน ${id} ออกจากระบบ?`)) {
-      const updated = packers.filter((p) => p.id !== id);
+    const found = packers.find((p) => p.id === id);
+    setDeleteTarget({ type: 'packer', id, name: found?.name || id });
+  };
+
+  const handleExecuteDelete = () => {
+    if (!deleteTarget) return;
+    if (deleteTarget.type === 'station') {
+      const updated = stations.filter((s) => s.id !== deleteTarget.id);
+      onUpdateStations(updated);
+      if (formData.stationId === deleteTarget.id) {
+        setFormData({ ...formData, stationId: updated[0].id });
+      }
+      setActionFeedback({ type: 'success', message: `ลบโต๊ะแพ็ค ${deleteTarget.id} เรียบร้อย` });
+    } else {
+      const updated = packers.filter((p) => p.id !== deleteTarget.id);
       onUpdatePackers(updated);
+      setActionFeedback({ type: 'success', message: `ลบพนักงาน ${deleteTarget.id} เรียบร้อย` });
     }
+    setDeleteTarget(null);
   };
 
   const handleUploadPackerPhoto = async (packerId: string, file: File) => {
     try {
       setImageProcessingLoading(true);
-      // Auto-crop into a 1:1 circle (aspect ratio 1:1) from any image size/format
       const circleDataUrl = await processUploadedImage(file, 400, true);
       const updated = packers.map((p) => {
         if (p.id === packerId) {
@@ -258,9 +272,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         return p;
       });
       onUpdatePackers(updated);
+      setActionFeedback({ type: 'success', message: 'อัปเดตรูปประจำตัวสำเร็จ' });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'เกิดข้อผิดพลาดในการประมวลผลรูป';
-      alert(msg);
+      setActionFeedback({ type: 'error', message: msg });
     } finally {
       setImageProcessingLoading(false);
     }
@@ -310,9 +325,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         ...customLogos,
         [logoKey]: circleDataUrl,
       });
+      setActionFeedback({ type: 'success', message: 'อัปโหลดโลโก้สำเร็จ' });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'เกิดข้อผิดพลาดในการอัปโหลดรูป';
-      alert(msg);
+      setActionFeedback({ type: 'error', message: msg });
     } finally {
       setImageProcessingLoading(false);
     }
@@ -344,26 +360,26 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
 
         {/* Main Tab Navigation */}
-        <div className="px-6 pt-3 border-b border-stone-200 bg-white flex items-center gap-2">
+        <div className="px-4 sm:px-6 pt-2 border-b border-stone-200 bg-white flex items-center gap-1.5 overflow-x-auto">
           <button
             type="button"
             onClick={() => setActiveMainTab('general')}
-            className={`px-4 py-2.5 text-xs font-bold rounded-t-xl transition border-b-2 flex items-center gap-1.5 ${
+            className={`px-3.5 py-2 text-xs font-semibold rounded-t-xl transition border-b-2 flex items-center gap-1.5 whitespace-nowrap min-h-[38px] ${
               activeMainTab === 'general'
-                ? 'border-[#f06b4b] text-[#f06b4b] bg-stone-50/80'
+                ? 'border-[#f06b4b] text-[#f06b4b] bg-stone-50/80 font-bold'
                 : 'border-transparent text-stone-500 hover:text-slate-800'
             }`}
           >
             <Server className="w-4 h-4" />
-            <span>ทั่วไป & REST API</span>
+            <span>ตั้งค่าทั่วไป</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveMainTab('admin')}
-            className={`px-4 py-2.5 text-xs font-bold rounded-t-xl transition border-b-2 flex items-center gap-1.5 ${
+            className={`px-3.5 py-2 text-xs font-semibold rounded-t-xl transition border-b-2 flex items-center gap-1.5 whitespace-nowrap min-h-[38px] ${
               activeMainTab === 'admin'
-                ? 'border-[#f06b4b] text-[#f06b4b] bg-stone-50/80'
+                ? 'border-[#f06b4b] text-[#f06b4b] bg-stone-50/80 font-bold'
                 : 'border-transparent text-stone-500 hover:text-slate-800'
             }`}
           >
@@ -372,9 +388,24 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             ) : (
               <Lock className="w-4 h-4 text-amber-600" />
             )}
-            <span>การตั้งค่าระบบ แอดมิน {isAdminUnlocked ? '(ปลดล็อกแล้ว)' : '(admin/1234)'}</span>
+            <span>ตั้งค่าแอดมิน {isAdminUnlocked ? '(ปลดล็อกแล้ว)' : '(admin/1234)'}</span>
           </button>
         </div>
+
+        {/* Action Feedback Banner */}
+        {actionFeedback && (
+          <div className={`mx-4 sm:mx-6 mt-3 p-3 rounded-xl flex items-center justify-between text-xs animate-in fade-in duration-150 ${
+            actionFeedback.type === 'error' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+          }`}>
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{actionFeedback.message}</span>
+            </div>
+            <button onClick={() => setActionFeedback(null)} className="p-1 text-stone-400 hover:text-stone-600">
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
 
         {/* Tab Content Body */}
         <div className="p-6 overflow-y-auto flex-1 text-sm bg-stone-50/30">
@@ -941,9 +972,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                     <p className="text-xs text-stone-500 mt-0.5 truncate">
                                       {p.role}
                                     </p>
-                                    <p className="text-[10px] text-stone-400 mt-0.5">
-                                      {p.avatarUrl ? '✓ รูปภาพวงกลม 1:1 พร้อมใช้งาน' : 'ยังไม่มีรูปประจำตัว (ใช้ตัวย่อ)'}
-                                    </p>
+                                    <div className="text-[10px] text-stone-400 mt-0.5 flex items-center gap-1">
+                                      {p.avatarUrl ? (
+                                        <>
+                                          <CheckCircle2 className="w-3 h-3 text-emerald-600 inline" />
+                                          <span className="text-emerald-700">รูปภาพ 1:1 พร้อมใช้</span>
+                                        </>
+                                      ) : (
+                                        <span>ยังไม่มีรูปประจำตัว (ใช้ตัวย่อ)</span>
+                                      )}
+                                    </div>
                                   </div>
                                 )}
                               </div>
@@ -1099,7 +1137,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         <div className="px-6 py-4 border-t border-stone-200 bg-stone-50 flex items-center justify-between gap-3">
           <div className="text-xs text-stone-400">
             {activeMainTab === 'admin' && isAdminUnlocked && (
-              <span className="text-emerald-700 font-medium">✓ บันทึกโต๊ะและผู้แพ็คอัตโนมัติ</span>
+              <span className="text-emerald-700 font-medium flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                <span>บันทึกโต๊ะและผู้แพ็คอัตโนมัติ</span>
+              </span>
             )}
           </div>
           <div className="flex items-center gap-2">
@@ -1120,6 +1161,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
 
       </div>
+
+      {deleteTarget && (
+        <ConfirmModal
+          isOpen={!!deleteTarget}
+          title={deleteTarget.type === 'station' ? 'ยืนยันการลบโต๊ะแพ็ค' : 'ยืนยันการลบพนักงาน'}
+          message={`คุณต้องการลบ "${deleteTarget.name}" (${deleteTarget.id}) ออกจากระบบหรือไม่?`}
+          onConfirm={handleExecuteDelete}
+          onCancel={() => setDeleteTarget(null)}
+        />
+      )}
     </div>
   );
 };

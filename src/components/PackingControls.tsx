@@ -160,55 +160,55 @@ export const PackingControls: React.FC<PackingControlsProps> = ({
       <div className="bg-white rounded-3xl p-5 md:p-6 border border-stone-200 shadow-sm">
         
         {/* Panel Header */}
-        <div className="flex items-center justify-between pb-4 mb-4 border-b border-stone-100">
+        <div className="flex items-center justify-between pb-3 mb-3.5 border-b border-stone-100">
           <div>
             <h3 className="text-base font-bold text-slate-900 tracking-tight">
-              สถานีควบคุมการแพ็ค (Packing Station)
+              สถานีแพ็คพัสดุ
             </h3>
             <p className="text-xs text-stone-500 mt-0.5">
-              ระบบตรวจสอบความถูกต้องและบันทึกวิดีโอ
+              บันทึกวิดีโอและหลักฐาน
             </p>
           </div>
 
           {recordStatus === 'recording' ? (
-            <span className="flex items-center gap-1.5 text-xs font-bold text-red-600 bg-red-50 px-3 py-1 rounded-full border border-red-200 animate-pulse">
-              <span className="w-2.5 h-2.5 rounded-full bg-red-600"></span>
-              กำลังบันทึก (REC)
+            <span className="flex items-center gap-1.5 text-xs font-bold text-red-600 bg-red-50 px-2.5 py-1 rounded-full border border-red-200 animate-pulse">
+              <span className="w-2 h-2 rounded-full bg-red-600"></span>
+              REC
             </span>
           ) : isInputsLocked ? (
-            <span className="flex items-center gap-1.5 text-xs font-semibold text-amber-700 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+            <span className="flex items-center gap-1.5 text-xs font-medium text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
               <Lock className="w-3.5 h-3.5" />
               กำลังประมวลผล
             </span>
           ) : null}
         </div>
 
-        {/* SECTION 1: พนักงานผู้แพ็ค (Dropdown + Circular 1:1 Avatar) */}
-        <div className="mb-5 p-4 rounded-2xl bg-stone-50/80 border border-stone-200">
+        {/* SECTION 1: พนักงานผู้แพ็ค */}
+        <div className="mb-4 p-3.5 rounded-2xl bg-stone-50/80 border border-stone-200">
           <div className="flex items-center justify-between mb-2">
             <label 
               htmlFor="packer-select-dropdown"
-              className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2"
+              className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5"
             >
               <Users className="w-4 h-4 text-[#f06b4b]" />
-              <span>1. ผู้แพ็ค (Packer)</span>
+              <span>ผู้แพ็คพัสดุ</span>
             </label>
             
             {onOpenAdminSettings && (
               <button
                 type="button"
                 onClick={onOpenAdminSettings}
-                className="text-[11px] text-[#f06b4b] hover:text-[#e05837] font-semibold flex items-center gap-1 transition"
-                title="จัดการพนักงานและอัปโหลดรูปในการตั้งค่าระบบแอดมิน (admin/1234)"
+                className="text-[11px] text-[#f06b4b] hover:text-[#e05837] font-medium flex items-center gap-1 transition"
+                title="จัดการพนักงานในการตั้งค่าระบบ"
               >
                 <Settings className="w-3 h-3" />
-                <span>ตั้งค่าแอดมิน (admin/1234)</span>
+                <span>จัดการพนักงาน</span>
               </button>
             )}
           </div>
 
           {/* Packer Dropdown Select */}
-          <div className="relative mb-3">
+          <div className="relative mb-2.5">
             <select
               id="packer-select-dropdown"
               disabled={isInputsLocked}
@@ -219,96 +219,78 @@ export const PackingControls: React.FC<PackingControlsProps> = ({
                   setCustomOperatorName('');
                 }
               }}
-              className="w-full px-3.5 py-2.5 pr-10 text-xs font-medium rounded-xl border border-stone-300 bg-white text-slate-800 focus:border-[#f06b4b] focus:outline-none focus:ring-2 focus:ring-[#f06b4b]/20 min-h-[44px] appearance-none disabled:bg-stone-100 disabled:opacity-60 cursor-pointer"
+              className="w-full px-3 py-2 pr-10 text-xs font-medium rounded-xl border border-stone-300 bg-white text-slate-800 focus:border-[#f06b4b] focus:outline-none focus:ring-2 focus:ring-[#f06b4b]/20 min-h-[40px] appearance-none disabled:bg-stone-100 disabled:opacity-60 cursor-pointer"
             >
               {packers.map((staff) => (
                 <option key={staff.id} value={staff.id}>
                   {staff.name} ({staff.nickname}) - {staff.role}
                 </option>
               ))}
-              <option value="CUSTOM">ระบุชื่อเอง / กำหนดเอง (Custom)</option>
+              <option value="CUSTOM">ระบุชื่อเอง (Custom)</option>
             </select>
-            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-stone-400">
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-stone-400">
               <ChevronDown className="w-4 h-4" />
             </div>
           </div>
 
           {/* Custom Name Input if CUSTOM is selected */}
           {operatorId === 'CUSTOM' && setCustomOperatorName && (
-            <div className="mb-3">
+            <div className="mb-2.5">
               <input
                 type="text"
                 value={customOperatorName}
                 onChange={(e) => setCustomOperatorName(e.target.value)}
                 placeholder="พิมพ์ชื่อ-นามสกุล หรือชื่อเล่นผู้แพ็ค..."
                 disabled={isInputsLocked}
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#f06b4b]/20 min-h-[40px] text-slate-800"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#f06b4b]/20 min-h-[38px] text-slate-800"
               />
             </div>
           )}
 
-          {/* Active Packer Card with 1:1 Circle Avatar */}
-          <div className="p-3 rounded-xl bg-white border border-stone-200/90 flex items-center justify-between gap-3 shadow-2xs">
-            <div className="flex items-center gap-3 min-w-0">
-              {/* 1:1 Circular Avatar */}
+          {/* Active Packer Card Preview */}
+          <div className="p-2.5 rounded-xl bg-white border border-stone-200/90 flex items-center justify-between gap-3 shadow-2xs">
+            <div className="flex items-center gap-2.5 min-w-0">
+              {/* Circular Avatar */}
               <div className="relative shrink-0">
                 {activeAvatar ? (
                   <img
                     src={activeAvatar}
                     alt={currentPacker?.name || 'Packer'}
-                    className="w-12 h-12 rounded-full aspect-square object-cover border-2 border-[#f06b4b]/30 shadow-xs"
+                    className="w-10 h-10 rounded-full aspect-square object-cover border border-[#f06b4b]/30 shadow-2xs"
                   />
                 ) : (
-                  <div className={`w-12 h-12 rounded-full aspect-square ${currentPacker?.avatarColor || 'bg-[#f06b4b]'} text-white flex items-center justify-center font-bold text-base shadow-xs`}>
+                  <div className={`w-10 h-10 rounded-full aspect-square ${currentPacker?.avatarColor || 'bg-[#f06b4b]'} text-white flex items-center justify-center font-bold text-sm shadow-2xs`}>
                     {operatorId === 'CUSTOM' ? (
-                      <User className="w-5 h-5" />
+                      <User className="w-4 h-4" />
                     ) : (
                       currentPacker?.nickname ? currentPacker.nickname.charAt(0) : 'P'
                     )}
                   </div>
                 )}
-                <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white" />
+                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white" />
               </div>
 
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5">
-                  <span className="font-bold text-xs text-slate-900 truncate">
-                    {operatorId === 'CUSTOM' ? (customOperatorName || 'ระบุชื่อเอง') : `${currentPacker?.name} (${currentPacker?.nickname})`}
-                  </span>
-                </div>
-                <span className="text-[11px] text-stone-500 block truncate">
-                  {operatorId === 'CUSTOM' ? 'พนักงานชั่วคราว / กำหนดเอง' : currentPacker?.role}
+                <span className="font-bold text-xs text-slate-900 truncate block">
+                  {operatorId === 'CUSTOM' ? (customOperatorName || 'ระบุชื่อเอง') : `${currentPacker?.name} (${currentPacker?.nickname})`}
                 </span>
-                <span className="text-[10px] text-stone-400 block">
-                  รูปวงกลม 1:1 ประทับในวิดีโอหลักฐาน
+                <span className="text-[11px] text-stone-500 block truncate">
+                  {operatorId === 'CUSTOM' ? 'พนักงานชั่วคราว' : currentPacker?.role}
                 </span>
               </div>
             </div>
-
-            {/* Link to Admin Settings to upload/edit photos */}
-            {onOpenAdminSettings && (
-              <button
-                type="button"
-                onClick={onOpenAdminSettings}
-                className="px-2.5 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-slate-700 text-xs font-semibold transition shrink-0 flex items-center gap-1"
-                title="เพิ่ม/แก้ไขรูปภาพพนักงานในหน้าต่างตั้งค่าระบบแอดมิน (admin/1234)"
-              >
-                <ShieldCheck className="w-3.5 h-3.5 text-[#f06b4b]" />
-                <span className="hidden sm:inline">แก้ไขรูปในแอดมิน</span>
-              </button>
-            )}
           </div>
         </div>
 
-        {/* SECTION 2: โต๊ะแพ็ค (Dynamic stations list managed by Admin) */}
-        <div className="mb-5">
+        {/* SECTION 2: โต๊ะแพ็ค */}
+        <div className="mb-4">
           <div className="flex items-center justify-between mb-1.5">
             <label 
               htmlFor="station-select"
               className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5"
             >
               <Building className="w-4 h-4 text-stone-500" />
-              <span>2. โต๊ะแพ็ค</span>
+              <span>โต๊ะแพ็ค</span>
             </label>
             {onOpenAdminSettings && (
               <button
@@ -316,7 +298,7 @@ export const PackingControls: React.FC<PackingControlsProps> = ({
                 onClick={onOpenAdminSettings}
                 className="text-[11px] text-stone-400 hover:text-[#f06b4b] transition flex items-center gap-1"
               >
-                <span>+ เพิ่ม/แก้ไขโต๊ะแพ็ค (แอดมิน)</span>
+                <span>+ จัดการโต๊ะ</span>
               </button>
             )}
           </div>
@@ -327,7 +309,7 @@ export const PackingControls: React.FC<PackingControlsProps> = ({
               value={stationId}
               disabled={isInputsLocked}
               onChange={(e) => setStationId(e.target.value)}
-              className="w-full px-3.5 py-2.5 pr-10 min-h-[44px] rounded-xl border border-stone-300 bg-stone-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#f06b4b]/20 focus:border-[#f06b4b] font-medium text-sm text-slate-800 transition disabled:opacity-60 cursor-pointer appearance-none"
+              className="w-full px-3 py-2 pr-10 min-h-[40px] rounded-xl border border-stone-300 bg-stone-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#f06b4b]/20 focus:border-[#f06b4b] font-medium text-xs text-slate-800 transition disabled:opacity-60 cursor-pointer appearance-none"
             >
               {stations.map((st) => (
                 <option key={st.id} value={st.id}>
@@ -335,24 +317,24 @@ export const PackingControls: React.FC<PackingControlsProps> = ({
                 </option>
               ))}
             </select>
-            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-stone-400">
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-stone-400">
               <ChevronDown className="w-4 h-4" />
             </div>
           </div>
         </div>
 
         {/* SECTION 3: เลขพัสดุ & เลือกขนส่ง */}
-        <div className="mb-5">
+        <div className="mb-4">
           <div className="flex items-center justify-between mb-1.5">
             <label 
               htmlFor="tracking-input"
               className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5"
             >
               <Scan className="w-4 h-4 text-[#f06b4b]" />
-              <span>3. เลขพัสดุ & ขนส่ง</span>
+              <span>เลขพัสดุ</span>
             </label>
-            <span className="text-xs text-[#f06b4b] font-medium">
-              กด Enter เพื่อเริ่มบันทึก
+            <span className="text-[11px] text-stone-400">
+              Enter เพื่อเริ่ม
             </span>
           </div>
 
@@ -372,41 +354,41 @@ export const PackingControls: React.FC<PackingControlsProps> = ({
                   onStartRecord();
                 }
               }}
-              className="w-full px-4 py-3 pr-11 min-h-[48px] rounded-xl border-2 border-stone-300 focus:border-[#f06b4b] focus:outline-none focus:ring-4 focus:ring-[#f06b4b]/20 font-mono text-base font-bold text-slate-900 tracking-wide transition placeholder:font-sans placeholder:font-normal placeholder:text-stone-400 placeholder:text-sm disabled:bg-stone-100 disabled:text-stone-500"
+              className="w-full px-3.5 py-2.5 pr-10 min-h-[44px] rounded-xl border-2 border-stone-300 focus:border-[#f06b4b] focus:outline-none focus:ring-3 focus:ring-[#f06b4b]/20 font-mono text-sm font-bold text-slate-900 tracking-wide transition placeholder:font-sans placeholder:font-normal placeholder:text-stone-400 placeholder:text-xs disabled:bg-stone-100 disabled:text-stone-500"
             />
-            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none">
-              <Scan className="w-5 h-5" />
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none">
+              <Scan className="w-4 h-4" />
             </div>
           </div>
 
           {/* ขนส่งให้เลือก (Courier Dropdown) */}
-          <div className="mt-4 p-3.5 rounded-xl border border-stone-200 bg-stone-50/80">
-            <div className="flex items-center justify-between mb-2">
+          <div className="mt-3 p-3 rounded-xl border border-stone-200 bg-stone-50/80">
+            <div className="flex items-center justify-between mb-1.5">
               <label 
                 htmlFor="courier-select-dropdown"
                 className="text-xs font-bold text-slate-700 flex items-center gap-1.5"
               >
                 <Truck className="w-3.5 h-3.5 text-[#f06b4b]" />
-                <span>เลือกขนส่ง (Courier):</span>
+                <span>บริษัทขนส่ง:</span>
               </label>
-              <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${courier.badgeBg} flex items-center gap-1.5`}>
+              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${courier.badgeBg} flex items-center gap-1`}>
                 {courier.logoUrl ? (
-                  <img src={courier.logoUrl} alt={courier.name} className="w-3.5 h-3.5 rounded-full object-contain" />
+                  <img src={courier.logoUrl} alt={courier.name} className="w-3 h-3 rounded-full object-contain" />
                 ) : (
-                  <Truck className="w-3 h-3" />
+                  <Truck className="w-2.5 h-2.5" />
                 )}
                 <span>{courier.name}</span>
               </span>
             </div>
 
             {/* Courier Dropdown Select */}
-            <div className="relative mb-2">
+            <div className="relative">
               <select
                 id="courier-select-dropdown"
                 disabled={isInputsLocked}
                 value={selectedCourierId}
                 onChange={(e) => onSelectCourier(e.target.value)}
-                className="w-full px-3.5 py-2.5 pr-10 text-xs font-medium rounded-xl border border-stone-300 bg-white text-slate-800 focus:border-[#f06b4b] focus:outline-none focus:ring-2 focus:ring-[#f06b4b]/20 min-h-[44px] appearance-none disabled:bg-stone-100 disabled:opacity-60 cursor-pointer"
+                className="w-full px-3 py-2 pr-10 text-xs font-medium rounded-xl border border-stone-300 bg-white text-slate-800 focus:border-[#f06b4b] focus:outline-none focus:ring-2 focus:ring-[#f06b4b]/20 min-h-[40px] appearance-none disabled:bg-stone-100 disabled:opacity-60 cursor-pointer"
               >
                 {courierOptions.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -414,7 +396,7 @@ export const PackingControls: React.FC<PackingControlsProps> = ({
                   </option>
                 ))}
               </select>
-              <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-stone-400">
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-stone-400">
                 <ChevronDown className="w-4 h-4" />
               </div>
             </div>
@@ -426,9 +408,9 @@ export const PackingControls: React.FC<PackingControlsProps> = ({
                   type="text"
                   value={customCourierName}
                   onChange={(e) => setCustomCourierName(e.target.value)}
-                  placeholder="ระบุชื่อขนส่ง เช่น Lalamove, Lineman, ขนส่งเอกชน..."
+                  placeholder="ระบุชื่อขนส่ง เช่น Lalamove, Lineman..."
                   disabled={isInputsLocked}
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#f06b4b]/20 min-h-[40px] text-slate-800"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#f06b4b]/20 min-h-[38px] text-slate-800"
                 />
               </div>
             )}
@@ -436,16 +418,16 @@ export const PackingControls: React.FC<PackingControlsProps> = ({
         </div>
 
         {/* SECTION 4: Action Buttons (Record / Stop) */}
-        <div className="pt-2 flex flex-col gap-2.5">
+        <div className="pt-1 flex flex-col gap-2">
           {recordStatus === 'recording' ? (
             <button
               id="btn-stop-record"
               type="button"
               onClick={onStopAndCapture}
-              className="w-full py-4 px-6 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-bold text-base shadow-lg shadow-red-600/30 active:scale-[0.99] transition flex items-center justify-center gap-3 animate-pulse"
+              className="w-full h-12 px-5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-sm shadow-md shadow-red-600/25 active:scale-[0.99] transition flex items-center justify-center gap-2 cursor-pointer animate-pulse"
             >
-              <Square className="w-5 h-5 fill-current" />
-              <span>หยุดบันทึก & ถ่ายภาพหลักฐาน (SPACEBAR)</span>
+              <Square className="w-4 h-4 fill-current" />
+              <span>หยุดบันทึก (Spacebar)</span>
             </button>
           ) : (
             <button
@@ -453,20 +435,20 @@ export const PackingControls: React.FC<PackingControlsProps> = ({
               type="button"
               disabled={isInputsLocked || !trackingNumber.trim()}
               onClick={onStartRecord}
-              className="w-full py-4 px-6 rounded-2xl bg-[#f06b4b] hover:bg-[#e05837] disabled:bg-stone-200 disabled:text-stone-400 disabled:shadow-none text-white font-bold text-base shadow-lg shadow-[#f06b4b]/25 active:scale-[0.99] transition flex items-center justify-center gap-3"
+              className="w-full h-12 px-5 rounded-xl bg-[#f06b4b] hover:bg-[#e05837] disabled:bg-stone-200 disabled:text-stone-400 disabled:shadow-none text-white font-bold text-sm shadow-md shadow-[#f06b4b]/20 active:scale-[0.99] transition flex items-center justify-center gap-2 cursor-pointer"
             >
-              <Play className="w-5 h-5 fill-current" />
-              <span>เริ่มบันทึกวิดีโอ (ENTER)</span>
+              <Play className="w-4 h-4 fill-current" />
+              <span>เริ่มบันทึก (Enter)</span>
             </button>
           )}
 
           {/* Quick Manual Reset button */}
-          <div className="flex items-center justify-between text-xs text-stone-400 px-1 pt-1">
-            <span>ทางลัด: กด Enter เริ่ม / Spacebar หยุด</span>
+          <div className="flex items-center justify-between text-xs text-stone-400 px-1 pt-0.5">
+            <span>Enter เริ่ม / Spacebar หยุด</span>
             <button
               type="button"
               onClick={onManualReset}
-              className="hover:text-stone-700 transition flex items-center gap-1"
+              className="hover:text-stone-700 transition flex items-center gap-1 py-1"
             >
               <RotateCcw className="w-3 h-3" /> ล้างหน้าจอ
             </button>

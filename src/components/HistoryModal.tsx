@@ -218,7 +218,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
                 type="text"
                 value={searchTracking}
                 onChange={(e) => setSearchTracking(e.target.value)}
-                placeholder="🔍 หาด้วยเลขพัสดุ (Tracking Number)..."
+                placeholder="ค้นหาเลขพัสดุ (Tracking Number)..."
                 className="w-full pl-9 pr-8 py-2 text-xs font-mono font-medium rounded-xl border border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#f06b4b]/20 focus:border-[#f06b4b] text-slate-800 placeholder:font-sans placeholder:text-stone-400"
               />
               <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -239,7 +239,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
                 onChange={(e) => setSelectedPacker(e.target.value)}
                 className="w-full pl-8 pr-4 py-2 text-xs font-medium rounded-xl border border-stone-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#f06b4b]/20 focus:border-[#f06b4b] appearance-none cursor-pointer"
               >
-                <option value="all">👤 ผู้แพ็คทั้งหมด</option>
+                <option value="all">ผู้แพ็คทั้งหมด</option>
                 {uniquePackers.map((p) => (
                   <option key={p} value={p}>
                     {p}
@@ -256,7 +256,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
                 onChange={(e) => setSelectedStation(e.target.value)}
                 className="w-full pl-8 pr-4 py-2 text-xs font-medium rounded-xl border border-stone-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#f06b4b]/20 focus:border-[#f06b4b] appearance-none cursor-pointer"
               >
-                <option value="all">🏢 ทุกโต๊ะแพ็ค</option>
+                <option value="all">ทุกโต๊ะแพ็ค</option>
                 {uniqueStations.map((st) => (
                   <option key={st} value={st}>
                     {st}
@@ -449,9 +449,15 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
                         </div>
 
                         {/* Date & Time display */}
-                        <div className="text-[11px] text-stone-400 font-mono mt-0.5 flex items-center gap-1.5">
-                          <span>📅 {dateTh}</span>
-                          <span>⏰ {timeTh}</span>
+                        <div className="text-[11px] text-stone-400 font-mono mt-0.5 flex items-center gap-2.5">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3 text-stone-400" />
+                            {dateTh}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3 h-3 text-stone-400" />
+                            {timeTh}
+                          </span>
                         </div>
                       </div>
 

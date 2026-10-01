@@ -232,18 +232,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   return (
     <div className="space-y-6 pb-12">
       {/* 1. Header & Period Filter Controls */}
-      <div className="bg-white rounded-2xl border border-stone-200 p-5 md:p-6 shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="bg-white rounded-2xl border border-stone-200 p-4 sm:p-5 shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="p-2 rounded-xl bg-[#fef3ee] text-[#f06b4b]">
               <BarChart3 className="w-5 h-5" />
             </span>
             <div>
-              <h2 className="text-xl font-bold text-slate-900 leading-tight">
-                แดชบอร์ดสถิติการแพ็คสินค้า (Packing Analytics)
+              <h2 className="text-lg sm:text-xl font-bold text-slate-900 leading-tight">
+                แดชบอร์ดสถิติ
               </h2>
               <p className="text-xs text-stone-500 mt-0.5">
-                สรุปยอดพัสดุ ประสิทธิภาพการแพ็ครายบุคคล และการกระจายตัวของขนส่ง
+                สรุปยอดพัสดุและประสิทธิภาพการแพ็ค
               </p>
             </div>
           </div>
@@ -251,49 +251,49 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <Calendar className="w-3.5 h-3.5 text-[#f06b4b]" />
             <span>ช่วงเวลา: <b>{getTimeFilterLabel()}</b></span>
             <span className="text-stone-300">|</span>
-            <span>บันทึกทั้งหมด <b>{filteredRecords.length}</b> รายการ</span>
+            <span>ทั้งหมด <b>{filteredRecords.length}</b> รายการ</span>
           </div>
         </div>
 
         {/* Filter Tab Buttons & Actions */}
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Time Filter Pill Selector */}
           <div className="inline-flex p-1 bg-stone-100 rounded-xl border border-stone-200">
             <button
               id="filter-today"
               onClick={() => setTimeFilter('today')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 min-h-[36px] ${
                 timeFilter === 'today'
                   ? 'bg-white text-[#f06b4b] shadow-xs'
                   : 'text-stone-600 hover:text-slate-900'
               }`}
             >
               <Zap className="w-3.5 h-3.5" />
-              <span>วันนี้ (Today)</span>
+              <span>วันนี้</span>
             </button>
             <button
               id="filter-week"
               onClick={() => setTimeFilter('week')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 min-h-[36px] ${
                 timeFilter === 'week'
                   ? 'bg-white text-[#f06b4b] shadow-xs'
                   : 'text-stone-600 hover:text-slate-900'
               }`}
             >
               <Calendar className="w-3.5 h-3.5" />
-              <span>สัปดาห์นี้ (Week)</span>
+              <span>สัปดาห์นี้</span>
             </button>
             <button
               id="filter-month"
               onClick={() => setTimeFilter('month')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 min-h-[36px] ${
                 timeFilter === 'month'
                   ? 'bg-white text-[#f06b4b] shadow-xs'
                   : 'text-stone-600 hover:text-slate-900'
               }`}
             >
               <TrendingUp className="w-3.5 h-3.5" />
-              <span>เดือนนี้ (Month)</span>
+              <span>เดือนนี้</span>
             </button>
           </div>
 
@@ -301,7 +301,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <button
             onClick={handleExportCSV}
             disabled={filteredRecords.length === 0}
-            className="px-3 py-1.5 rounded-xl border border-stone-200 hover:bg-stone-50 text-stone-700 text-xs font-semibold transition flex items-center gap-1.5 disabled:opacity-40"
+            className="px-3 py-1.5 rounded-xl border border-stone-200 hover:bg-stone-50 text-stone-700 text-xs font-semibold transition flex items-center gap-1.5 disabled:opacity-40 min-h-[36px]"
             title="ส่งออกรายงานเป็นไฟล์ CSV"
           >
             <Download className="w-3.5 h-3.5 text-stone-500" />

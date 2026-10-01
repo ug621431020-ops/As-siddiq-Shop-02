@@ -15,7 +15,8 @@ import {
   Sparkles,
   Zap,
   Package,
-  ShoppingCart
+  ShoppingCart,
+  X
 } from 'lucide-react';
 import { User } from 'firebase/auth';
 import { GoogleSignInButton } from './GoogleSignInButton';
@@ -128,7 +129,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
       await loadEvents();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'ไม่สามารถสร้างนัดหมายได้';
-      alert(`เกิดข้อผิดพลาด: ${msg}`);
+      setError(`เกิดข้อผิดพลาด: ${msg}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -145,7 +146,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
       setDeletingEvent(null);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'ไม่สามารถลบนัดหมายได้';
-      alert(`เกิดข้อผิดพลาด: ${msg}`);
+      setError(`เกิดข้อผิดพลาด: ${msg}`);
     } finally {
       setIsDeleting(false);
     }

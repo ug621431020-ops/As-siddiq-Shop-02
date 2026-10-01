@@ -101,37 +101,37 @@ export const Header: React.FC<HeaderProps> = ({
     switch (recordStatus) {
       case 'recording':
         return (
-          <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-500 text-white shadow-sm shadow-red-500/20">
+          <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-red-500 text-white shadow-xs">
             <span className="w-2 h-2 rounded-full bg-white animate-ping"></span>
-            บันทึก REC
+            REC
           </span>
         );
       case 'stopping':
         return (
-          <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500 text-white">
+          <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-500 text-white">
             <span className="w-2 h-2 rounded-full bg-white animate-spin"></span>
-            ถ่ายภาพ...
+            <span className="hidden sm:inline">ถ่ายภาพ...</span>
           </span>
         );
       case 'uploading':
         return (
-          <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-600 text-white">
+          <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-600 text-white">
             <span className="w-2 h-2 rounded-full bg-white animate-spin"></span>
-            กำลังส่ง...
+            <span className="hidden sm:inline">กำลังส่ง...</span>
           </span>
         );
       case 'success':
         return (
-          <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-600 text-white">
+          <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-600 text-white">
             <Check className="w-3.5 h-3.5" />
-            สำเร็จ
+            <span className="hidden sm:inline">สำเร็จ</span>
           </span>
         );
       case 'error':
         return (
-          <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-600 text-white">
+          <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-rose-600 text-white">
             <X className="w-3.5 h-3.5" />
-            ล้มเหลว
+            <span className="hidden sm:inline">ล้มเหลว</span>
           </span>
         );
       default:
@@ -140,56 +140,51 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="bg-white border-b border-stone-200 px-4 md:px-6 py-3.5 flex items-center justify-between gap-4 sticky top-0 z-30 shadow-xs">
-      {/* Left section: Hamburger & Active Status */}
-      <div className="flex items-center gap-3">
+    <header className="bg-white border-b border-stone-200 px-3 sm:px-5 lg:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-3 sticky top-0 z-30">
+      {/* Left section: Hamburger (mobile/tablet) & Status */}
+      <div className="flex items-center gap-2 sm:gap-3">
         <button
           id="btn-mobile-menu"
           onClick={onOpenMobileMenu}
-          className="md:hidden p-2 rounded-lg text-stone-600 hover:bg-stone-100 transition"
-          aria-label="Open menu"
+          className="md:hidden p-2 rounded-lg text-stone-600 hover:bg-stone-100 transition min-h-[40px] min-w-[40px] flex items-center justify-center"
+          aria-label="เมนู"
         >
           <Menu className="w-5 h-5" />
         </button>
 
-        <div>
+        {/* Station name for mobile/tablet where sidebar is closed */}
+        <div className="md:hidden flex items-center gap-1.5 text-xs">
+          <span className="font-bold text-slate-800">{stationId}</span>
+        </div>
+
+        {/* Status Badge (single instance, non-redundant) */}
+        <div className="flex items-center">
           {getStatusBadge()}
         </div>
       </div>
 
-      {/* Right section: Status, Clock, Today Counter, Actions */}
-      <div className="flex items-center gap-3 md:gap-5">
-        {/* Mobile status badge */}
-        <div className="lg:hidden">
-          {getStatusBadge()}
-        </div>
-
-        {/* Packing Counter / Dashboard link */}
+      {/* Right section: Counter, Clock, Sound, User Login */}
+      <div className="flex items-center gap-2 sm:gap-3">
+        {/* Packing Counter */}
         <button
           onClick={onOpenDashboard}
-          title="คลิกเพื่อเปิดแดชบอร์ดสรุปสถิติ"
-          className="hidden sm:flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-stone-50 hover:bg-stone-100/80 border border-stone-200 text-xs transition text-left"
+          title="ดูแดชบอร์ดสรุปสถิติ"
+          className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-stone-50 hover:bg-stone-100 border border-stone-200 text-xs transition text-left min-h-[38px]"
         >
-          <PackageCheck className="w-4 h-4 text-[#f06b4b]" />
-          <div>
-            <span className="text-stone-400 block text-[10px] uppercase font-bold leading-none">แพ็คแล้ววันนี้</span>
-            <div className="font-bold text-slate-800 font-mono text-sm leading-tight mt-0.5">
-              {todayCount} <span className="text-[11px] font-normal text-stone-500">กล่อง</span>
-            </div>
+          <PackageCheck className="w-4 h-4 text-[#f06b4b] shrink-0" />
+          <div className="flex items-baseline gap-1">
+            <span className="hidden md:inline text-stone-400 text-[11px]">วันนี้</span>
+            <span className="font-bold text-slate-800 font-mono text-xs sm:text-sm">
+              {todayCount}
+            </span>
+            <span className="text-[10px] text-stone-400">กล่อง</span>
           </div>
         </button>
 
-        {/* Live Clock */}
-        <div className="hidden md:flex items-center gap-2 text-right">
-          <Clock className="w-4 h-4 text-stone-400" />
-          <div>
-            <div className="font-mono text-sm font-bold text-slate-800 leading-tight">
-              {currentTime || '--:--:--'}
-            </div>
-            <div className="text-[10px] text-stone-400 leading-tight">
-              {currentDate || 'กำลังโหลด...'}
-            </div>
-          </div>
+        {/* Live Clock (tablet and PC) */}
+        <div className="hidden lg:flex items-center gap-1.5 text-right px-2 py-1 text-xs text-stone-600">
+          <Clock className="w-3.5 h-3.5 text-stone-400" />
+          <span className="font-mono font-semibold text-slate-800">{currentTime || '--:--:--'}</span>
         </div>
 
         {/* Audio Beep Toggle */}
@@ -197,7 +192,8 @@ export const Header: React.FC<HeaderProps> = ({
           id="btn-toggle-sound"
           onClick={() => setSoundEnabled(!soundEnabled)}
           title={soundEnabled ? 'ปิดเสียงเตือน' : 'เปิดเสียงเตือน'}
-          className={`p-2 rounded-xl border transition ${
+          aria-label="สลับเสียงเตือน"
+          className={`w-9 h-9 rounded-lg border transition flex items-center justify-center ${
             soundEnabled 
               ? 'bg-stone-50 border-stone-200 text-slate-700 hover:bg-stone-100' 
               : 'bg-stone-100 border-stone-300 text-stone-400'
@@ -214,7 +210,7 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => setIsAuthMenuOpen(!isAuthMenuOpen)}
               title={`เข้าสู่ระบบแล้ว: ${googleUser.displayName || googleUser.email}`}
               aria-label="เมนูผู้ใช้งาน"
-              className="flex items-center gap-2 p-1 sm:px-2.5 sm:py-1.5 rounded-xl border border-stone-200 hover:border-stone-300 bg-stone-50 hover:bg-stone-100 transition text-left cursor-pointer"
+              className="flex items-center gap-1.5 p-1 sm:px-2 sm:py-1 rounded-lg border border-stone-200 hover:border-stone-300 bg-stone-50 hover:bg-stone-100 transition cursor-pointer min-h-[38px]"
             >
               <div className="relative flex items-center justify-center">
                 {googleUser.photoURL ? (
@@ -225,20 +221,15 @@ export const Header: React.FC<HeaderProps> = ({
                     className="w-7 h-7 rounded-full object-cover ring-2 ring-emerald-500/80"
                   />
                 ) : (
-                  <div className="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                  <div className="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs">
                     {(googleUser.displayName || googleUser.email || 'U')[0].toUpperCase()}
                   </div>
                 )}
-                <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-emerald-500 rounded-full ring-1.5 ring-white" />
+                <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-emerald-500 rounded-full ring-1 ring-white" />
               </div>
-              <div className="hidden lg:block text-left pr-0.5">
-                <div className="text-xs font-bold text-slate-800 leading-tight truncate max-w-[110px]">
-                  {googleUser.displayName || 'ผู้ใช้งาน'}
-                </div>
-                <div className="text-[10px] text-emerald-600 font-medium leading-none mt-0.5">
-                  เข้าสู่ระบบแล้ว
-                </div>
-              </div>
+              <span className="hidden md:inline text-xs font-semibold text-slate-800 max-w-[100px] truncate">
+                {googleUser.displayName || 'ผู้ใช้งาน'}
+              </span>
               <ChevronDown className="w-3.5 h-3.5 text-stone-400" />
             </button>
           ) : (
@@ -247,20 +238,20 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => setIsAuthMenuOpen(!isAuthMenuOpen)}
               title="เข้าสู่ระบบ"
               aria-label="เข้าสู่ระบบ"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#f06b4b] hover:bg-[#df5e3f] text-white font-medium text-xs transition shadow-sm shadow-[#f06b4b]/20 cursor-pointer active:scale-95"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#f06b4b] hover:bg-[#df5e3f] text-white font-medium text-xs transition shadow-xs cursor-pointer min-h-[38px]"
             >
               {isAuthLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin text-white" />
               ) : (
                 <LogIn className="w-4 h-4 text-white" />
               )}
-              <span className="font-bold">เข้าสู่ระบบ</span>
+              <span className="font-semibold text-xs hidden sm:inline">เข้าสู่ระบบ</span>
             </button>
           )}
 
           {/* Login / Profile Dropdown Menu */}
           {isAuthMenuOpen && (
-            <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 bg-white rounded-2xl shadow-xl border border-stone-200/90 p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+            <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 bg-white rounded-2xl shadow-xl border border-stone-200 p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
               {googleUser ? (
                 /* Authenticated User Menu */
                 <div className="space-y-3">
@@ -270,10 +261,10 @@ export const Header: React.FC<HeaderProps> = ({
                         src={googleUser.photoURL}
                         alt="User"
                         referrerPolicy="no-referrer"
-                        className="w-11 h-11 rounded-full object-cover ring-2 ring-emerald-500/80"
+                        className="w-10 h-10 rounded-full object-cover ring-2 ring-emerald-500/80"
                       />
                     ) : (
-                      <div className="w-11 h-11 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm">
+                      <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm">
                         {(googleUser.displayName || googleUser.email || 'U')[0].toUpperCase()}
                       </div>
                     )}
@@ -284,24 +275,24 @@ export const Header: React.FC<HeaderProps> = ({
                       <div className="text-xs text-stone-500 truncate">
                         {googleUser.email}
                       </div>
-                      <div className="inline-flex items-center gap-1 text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 font-semibold px-2 py-0.5 rounded-full mt-1">
+                      <div className="inline-flex items-center gap-1 text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 font-medium px-1.5 py-0.5 rounded-full mt-1">
                         <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                        เชื่อมต่อ Cloud สำเร็จ
+                        เชื่อมต่อแล้ว
                       </div>
                     </div>
                   </div>
 
-                  <div className="space-y-1.5 pt-1">
+                  <div className="space-y-1 pt-1">
                     {onOpenGoogleDrive && (
                       <button
                         onClick={() => {
                           setIsAuthMenuOpen(false);
                           onOpenGoogleDrive();
                         }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-stone-100 rounded-xl transition text-left"
+                        className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-stone-100 rounded-lg transition text-left min-h-[38px]"
                       >
                         <HardDrive className="w-4 h-4 text-emerald-600" />
-                        คลังหลักฐาน Google Drive
+                        Google Drive
                       </button>
                     )}
 
@@ -310,10 +301,10 @@ export const Header: React.FC<HeaderProps> = ({
                         setIsAuthMenuOpen(false);
                         onOpenSettings();
                       }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-stone-100 rounded-xl transition text-left"
+                      className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-stone-100 rounded-lg transition text-left min-h-[38px]"
                     >
                       <ShieldCheck className="w-4 h-4 text-[#f06b4b]" />
-                      การตั้งค่าระบบและแอดมิน
+                      ตั้งค่าระบบ
                     </button>
                   </div>
 
@@ -323,10 +314,10 @@ export const Header: React.FC<HeaderProps> = ({
                         setIsAuthMenuOpen(false);
                         if (onGoogleSignOut) onGoogleSignOut();
                       }}
-                      className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-xl transition"
+                      className="w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-lg transition min-h-[38px]"
                     >
                       <LogOut className="w-4 h-4" />
-                      ออกจากระบบ (Sign Out)
+                      ออกจากระบบ
                     </button>
                   </div>
                 </div>
@@ -339,8 +330,8 @@ export const Header: React.FC<HeaderProps> = ({
                         <LogIn className="w-4 h-4" />
                       </div>
                       <div>
-                        <h4 className="text-xs font-bold text-slate-900 leading-tight">เข้าสู่ระบบ (Sign In)</h4>
-                        <p className="text-[10px] text-stone-500">เลือกวิธีการเข้าใช้งานระบบ</p>
+                        <h4 className="text-xs font-bold text-slate-900 leading-tight">เข้าสู่ระบบ</h4>
+                        <p className="text-[10px] text-stone-500">เลือกวิธีการเข้าใช้งาน</p>
                       </div>
                     </div>
                     <button
@@ -360,9 +351,9 @@ export const Header: React.FC<HeaderProps> = ({
                       }
                     }}
                     disabled={isAuthLoading}
-                    className="w-full flex items-center gap-3 p-2.5 rounded-xl border border-stone-200 hover:border-orange-300 bg-stone-50 hover:bg-orange-50/40 transition text-left group cursor-pointer"
+                    className="w-full flex items-center gap-2.5 p-2 rounded-xl border border-stone-200 hover:border-orange-300 bg-stone-50 hover:bg-orange-50/40 transition text-left group cursor-pointer min-h-[44px]"
                   >
-                    <div className="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center shadow-xs group-hover:scale-105 transition shrink-0">
+                    <div className="w-7 h-7 rounded-lg bg-white border border-stone-200 flex items-center justify-center shadow-2xs group-hover:scale-105 transition shrink-0">
                       <svg className="w-4 h-4" viewBox="0 0 24 24">
                         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                         <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -372,7 +363,7 @@ export const Header: React.FC<HeaderProps> = ({
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-xs font-bold text-slate-800">เข้าสู่ระบบด้วย Google</div>
-                      <div className="text-[10px] text-stone-500">ซิงค์หลักฐานกับ Google Drive</div>
+                      <div className="text-[10px] text-stone-500">ซิงค์กับ Google Drive</div>
                     </div>
                   </button>
 
@@ -382,14 +373,14 @@ export const Header: React.FC<HeaderProps> = ({
                       setIsAuthMenuOpen(false);
                       onOpenSettings();
                     }}
-                    className="w-full flex items-center gap-3 p-2.5 rounded-xl border border-stone-200 hover:border-stone-300 bg-stone-50 hover:bg-stone-100 transition text-left group cursor-pointer"
+                    className="w-full flex items-center gap-2.5 p-2 rounded-xl border border-stone-200 hover:border-stone-300 bg-stone-50 hover:bg-stone-100 transition text-left group cursor-pointer min-h-[44px]"
                   >
-                    <div className="w-8 h-8 rounded-lg bg-stone-100 flex items-center justify-center text-slate-700 shadow-xs group-hover:scale-105 transition shrink-0">
+                    <div className="w-7 h-7 rounded-lg bg-stone-100 flex items-center justify-center text-slate-700 shadow-2xs group-hover:scale-105 transition shrink-0">
                       <ShieldCheck className="w-4 h-4 text-[#f06b4b]" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-xs font-bold text-slate-800">ผู้ดูแลระบบ (Admin Settings)</div>
-                      <div className="text-[10px] text-stone-500">จัดการโต๊ะแพ็ค & พนักงาน (รหัส 1234)</div>
+                      <div className="text-xs font-bold text-slate-800">ตั้งค่าแอดมิน</div>
+                      <div className="text-[10px] text-stone-500">จัดการโต๊ะและพนักงาน</div>
                     </div>
                   </button>
                 </div>
