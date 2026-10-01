@@ -689,86 +689,85 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Table */}
         <div className="overflow-x-auto rounded-xl border border-stone-200">
           <table className="w-full text-left text-xs">
-            <thead className="bg-stone-50 text-stone-500 font-bold uppercase text-[10px] tracking-wider border-b border-stone-200">
+            <thead className="bg-stone-50 text-stone-500 font-semibold uppercase text-[10px] tracking-wider border-b border-stone-200">
               <tr>
-                <th className="px-4 py-3">เวลาที่แพ็ค</th>
-                <th className="px-4 py-3">เลขแทรคกิ้ง</th>
-                <th className="px-4 py-3">บริษัทขนส่ง</th>
-                <th className="px-4 py-3">พนักงานผู้แพ็ค</th>
-                <th className="px-4 py-3">จุดแพ็ค</th>
-                <th className="px-4 py-3">เวลาบันทึก</th>
-                <th className="px-4 py-3">สถานะ</th>
-                <th className="px-4 py-3 text-right">หลักฐาน</th>
+                <th className="px-3 py-2.5">เวลา</th>
+                <th className="px-3 py-2.5">เลขพัสดุ</th>
+                <th className="px-3 py-2.5">ขนส่ง</th>
+                <th className="px-3 py-2.5">ผู้แพ็ค</th>
+                <th className="px-3 py-2.5">โต๊ะ</th>
+                <th className="px-3 py-2.5">เวลาแพ็ค</th>
+                <th className="px-3 py-2.5">สถานะ</th>
+                <th className="px-3 py-2.5 text-right">ดู</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-stone-200 font-medium text-slate-700">
+            <tbody className="divide-y divide-stone-100 font-medium text-slate-700">
               {displayRecords.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="text-center py-8 text-stone-400">
-                    ไม่พบรายการพัสดุตามเงื่อนไขที่เลือก
+                    ไม่พบรายการพัสดุ
                   </td>
                 </tr>
               ) : (
                 displayRecords.map((record) => {
                   const recordDate = new Date(record.timestamp);
-                  const timeDisplay = recordDate.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                  const timeDisplay = recordDate.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
                   const dateDisplay = recordDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' });
 
                   return (
-                    <tr key={record.id} className="hover:bg-stone-50 transition">
-                      <td className="px-4 py-3 whitespace-nowrap">
+                    <tr key={record.id} className="hover:bg-orange-50/30 transition">
+                      <td className="px-3 py-2.5 whitespace-nowrap">
                         <span className="font-mono font-bold text-slate-800">{timeDisplay}</span>
-                        <span className="text-[10px] text-stone-400 block">{dateDisplay}</span>
+                        <span className="text-[10px] text-stone-400 block leading-tight">{dateDisplay}</span>
                       </td>
 
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <span className="font-mono font-bold text-slate-900 bg-stone-100 px-2 py-0.5 rounded text-xs">
+                      <td className="px-3 py-2.5 whitespace-nowrap">
+                        <span className="font-mono font-bold text-slate-900 bg-stone-100 px-2 py-0.5 rounded text-xs border border-stone-200/60">
                           {record.trackingNumber}
                         </span>
                       </td>
 
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${record.courier.badgeBg}`}>
+                      <td className="px-3 py-2.5 whitespace-nowrap">
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold ${record.courier.badgeBg}`}>
                           <Truck className="w-3 h-3" />
                           <span>{record.courier.name}</span>
                         </span>
                       </td>
 
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-medium text-slate-800">
-                            {record.operatorName || 'ไม่ระบุ'}
-                          </span>
-                        </div>
+                      <td className="px-3 py-2.5 whitespace-nowrap">
+                        <span className="font-medium text-slate-800 text-xs">
+                          {record.operatorName || 'ไม่ระบุ'}
+                        </span>
                       </td>
 
-                      <td className="px-4 py-3 whitespace-nowrap font-mono text-stone-600">
+                      <td className="px-3 py-2.5 whitespace-nowrap font-mono text-stone-600 text-xs">
                         {record.stationId}
                       </td>
 
-                      <td className="px-4 py-3 whitespace-nowrap font-mono text-stone-600">
+                      <td className="px-3 py-2.5 whitespace-nowrap font-mono text-stone-600 text-xs">
                         {record.durationSec}s
                       </td>
 
-                      <td className="px-4 py-3 whitespace-nowrap">
+                      <td className="px-3 py-2.5 whitespace-nowrap">
                         {record.uploadStatus === 'success' ? (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">
-                            <CheckCircle2 className="w-3 h-3" /> สำเร็จ
+                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-600" /> สำเร็จ
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-md">
+                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded">
                             ล้มเหลว
                           </span>
                         )}
                       </td>
 
-                      <td className="px-4 py-3 whitespace-nowrap text-right">
+                      <td className="px-3 py-2.5 whitespace-nowrap text-right">
                         <button
+                          type="button"
                           onClick={() => onViewRecordDetail(record)}
-                          className="px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-[#fef3ee] hover:text-[#f06b4b] text-stone-700 text-xs font-semibold transition inline-flex items-center gap-1"
+                          className="h-7 px-2.5 rounded-md bg-stone-100 hover:bg-[#f06b4b] hover:text-white text-stone-700 text-xs font-semibold transition inline-flex items-center gap-1"
                         >
-                          <Eye className="w-3.5 h-3.5" />
-                          <span>ดูรูป</span>
+                          <Eye className="w-3 h-3" />
+                          <span>ดู</span>
                         </button>
                       </td>
                     </tr>

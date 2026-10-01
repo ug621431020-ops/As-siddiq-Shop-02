@@ -98,7 +98,13 @@ export const CameraView: React.FC<CameraViewProps> = ({
       // Stop old tracks
       if (videoRef.current && videoRef.current.srcObject) {
         const stream = videoRef.current.srcObject as MediaStream;
-        stream.getTracks().forEach((track) => track.stop());
+        if (stream.getTracks) {
+          stream.getTracks().forEach((track) => track.stop());
+        }
+      }
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('อุปกรณ์หรือเบราว์เซอร์ไม่รองรับกล้อง WebRTC (เปลี่ยนไปใช้โหมดจำลองอัตโนมัติ)');
       }
 
       // Constraints optimized for both mobile phones and desktop webcams
@@ -114,6 +120,7 @@ export const CameraView: React.FC<CameraViewProps> = ({
 
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       if (videoRef.current) {
+        videoRef.current.muted = true;
         videoRef.current.srcObject = stream;
         await videoRef.current.play().catch(() => {});
       }
@@ -132,7 +139,6 @@ export const CameraView: React.FC<CameraViewProps> = ({
       const msg = err instanceof Error ? err.message : 'ไม่สามารถเปิดกล้องได้';
       setErrorMessage(msg);
       setHasPermission(false);
-      onCameraReady?.(false, 'N/A');
 
       // Start animated simulation canvas so user can still test recording & evidence creation seamlessly!
       startSimulationFeed();
@@ -244,16 +250,19 @@ export const CameraView: React.FC<CameraViewProps> = ({
     draw();
 
     try {
-      const stream = canvas.captureStream(30);
-      if (videoRef.current) {
+      const anyCanvas = canvas as any;
+      const stream = anyCanvas.captureStream ? anyCanvas.captureStream(25) : anyCanvas.webkitCaptureStream ? anyCanvas.webkitCaptureStream(25) : null;
+      if (videoRef.current && stream) {
+        videoRef.current.muted = true;
         videoRef.current.srcObject = stream;
         videoRef.current.play().catch(() => {});
       }
       const res = '1280x720 (Demo 720p)';
       setResolution(res);
+      setHasPermission(true);
       onCameraReady?.(true, res);
-    } catch {
-      // Capture stream fallback
+    } catch (e) {
+      console.warn('captureStream error:', e);
     }
   };
 
@@ -311,11 +320,32 @@ export const CameraView: React.FC<CameraViewProps> = ({
           <button
             type="button"
             onClick={handleToggleFacingMode}
-            title="สลับกล้องหน้า / กล้องหลัง (สำหรับมือถือและแท็บเล็ต)"
+            title="สลับกล้องหน้า / กล้องหลัง"
             className="flex items-center gap-1 px-2.5 py-1.5 min-h-[38px] rounded-xl border bg-white border-stone-200 hover:border-[#f06b4b] text-slate-700 hover:text-[#f06b4b] text-xs font-semibold shadow-2xs transition"
           >
             <SwitchCamera className="w-4 h-4 text-[#f06b4b]" />
-            <span>{facingMode === 'environment' ? 'กล้องหลัง' : 'กล้องหน้า'}</span>
+            <span className="hidden sm:inline">{facingMode === 'environment' ? 'กล้องหลัง' : 'กล้องหน้า'}</span>
+          </button>
+
+          {/* Demo Mode Toggle Button */}
+          <button
+            type="button"
+            onClick={() => {
+              if (isUsingDemoStream) {
+                startCamera(selectedDeviceId, facingMode);
+              } else {
+                startSimulationFeed();
+              }
+            }}
+            title={isUsingDemoStream ? 'สลับไปใช้กล้องจริง' : 'สลับไปใช้กล้องจำลอง (สำหรับทดสอบ)'}
+            className={`flex items-center gap-1 px-2.5 py-1.5 min-h-[38px] rounded-xl border text-xs font-semibold shadow-2xs transition ${
+              isUsingDemoStream 
+                ? 'bg-amber-50 border-amber-300 text-amber-800' 
+                : 'bg-white border-stone-200 hover:border-[#f06b4b] text-slate-700'
+            }`}
+          >
+            <Sparkles className={`w-3.5 h-3.5 ${isUsingDemoStream ? 'text-amber-500' : 'text-stone-400'}`} />
+            <span>{isUsingDemoStream ? 'โหมดจำลอง' : 'กล้องจริง'}</span>
           </button>
 
           {/* Device Selector for multi-lens phones/webcams */}
@@ -488,9 +518,9 @@ export const CameraView: React.FC<CameraViewProps> = ({
 
       {/* Bottom Camera Sub-info */}
       <div className="px-4 py-2 bg-stone-50 border-t border-stone-200 flex flex-wrap items-center justify-between text-xs text-stone-500 gap-2">
-        <div className="flex items-center gap-2 font-mono text-[11px]">
+        <div className="flex items-center gap-2 text-[11px]">
           <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-          <span>WebRTC • 720p HD</span>
+          <span className="font-medium text-slate-700">กล้องพร้อมใช้งาน</span>
         </div>
         <div className="flex items-center gap-3">
           {isUsingDemoStream && (
@@ -498,7 +528,7 @@ export const CameraView: React.FC<CameraViewProps> = ({
               โหมดจำลอง
             </span>
           )}
-          <span className="text-[11px] text-stone-400 font-mono">Camera Ready</span>
+          <span className="text-[11px] text-stone-400 font-mono">Ready</span>
         </div>
       </div>
     </div>

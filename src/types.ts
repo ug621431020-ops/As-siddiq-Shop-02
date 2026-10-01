@@ -22,6 +22,17 @@ export interface CourierInfo {
   logoUrl?: string;
 }
 
+export type PackagingType = 'box' | 'bag' | 'envelope';
+
+export interface PackagingSizeOption {
+  id: string;
+  type: PackagingType;
+  name: string;
+  dimensions: string;
+  description?: string;
+  popular?: boolean;
+}
+
 export interface PackRecord {
   id: string;
   stationId: string;
@@ -29,6 +40,9 @@ export interface PackRecord {
   operatorName: string;
   trackingNumber: string;
   courier: CourierInfo;
+  packagingType?: PackagingType;
+  packagingSize?: string;
+  packagingDimensions?: string;
   timestamp: string; // ISO String
   durationSec: number;
   videoBlobUrl?: string;

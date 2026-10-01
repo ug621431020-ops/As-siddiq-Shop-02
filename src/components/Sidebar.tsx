@@ -5,27 +5,23 @@ import {
   History, 
   Settings, 
   Code2, 
-  CheckCircle2, 
-  Layers, 
-  Radio,
   BarChart3,
   User,
   Users,
   HardDrive,
-  Calendar,
   X
 } from 'lucide-react';
 import { RecordStatus } from '../types';
 
 interface SidebarProps {
-  activeTab: 'console' | 'dashboard' | 'drive' | 'calendar' | 'history' | 'settings' | 'export';
-  setActiveTab: (tab: 'console' | 'dashboard' | 'drive' | 'calendar' | 'history' | 'settings' | 'export') => void;
+  activeTab: 'console' | 'dashboard' | 'drive' | 'history' | 'settings' | 'export';
+  setActiveTab: (tab: 'console' | 'dashboard' | 'drive' | 'history' | 'settings' | 'export') => void;
   recordCount: number;
   currentStation: string;
   currentOperatorName: string;
   recordStatus: RecordStatus;
-  isCameraActive: boolean;
-  resolutionText: string;
+  isCameraActive?: boolean;
+  resolutionText?: string;
   isMobileOpen: boolean;
   setIsMobileOpen: (open: boolean) => void;
   isGoogleConnected?: boolean;
@@ -61,15 +57,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     },
     {
       id: 'drive' as const,
-      label: 'Google Drive',
+      label: 'ข้อมูล',
       icon: HardDrive,
-      badge: null,
-      badgeColor: '',
-    },
-    {
-      id: 'calendar' as const,
-      label: 'Google Calendar',
-      icon: Calendar,
       badge: null,
       badgeColor: '',
     },
@@ -194,42 +183,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
               );
             })}
           </nav>
-        </div>
-
-        {/* Bottom Hardware & System Status */}
-        <div className="p-5 border-t border-stone-200 bg-stone-50/50">
-          <div className="space-y-2.5 text-xs text-stone-500">
-            <div className="flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
-                <Radio className={`w-3.5 h-3.5 ${isCameraActive ? 'text-emerald-500' : 'text-stone-400'}`} />
-                WebRTC กล้อง
-              </span>
-              <span className="font-mono font-semibold text-slate-700">
-                {isCameraActive ? resolutionText || '720p HD' : 'ไม่ได้เชื่อมต่อ'}
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
-                <Layers className="w-3.5 h-3.5 text-stone-400" />
-                ระบบตรวจขนส่ง
-              </span>
-              <span className="font-semibold text-slate-700">9 ค่าย (Regex Auto)</span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                ความปลอดภัยหลักฐาน
-              </span>
-              <span className="text-[11px] text-emerald-700 font-medium">Watermark + Staff</span>
-            </div>
-          </div>
-
-          <div className="mt-4 pt-3 border-t border-stone-200/80 flex items-center justify-between text-[11px] text-stone-400">
-            <span>Packing Logistics</span>
-            <span className="font-mono">PRISM Core</span>
-          </div>
         </div>
       </aside>
     </>

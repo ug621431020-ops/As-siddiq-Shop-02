@@ -25,6 +25,11 @@ export function getInitialPackRecords(): PackRecord[] {
     const timestamp = new Date(now.getTime() - (idx * 28 + 10) * 60 * 1000).toISOString();
     const courier = detectCourier(item.code);
     const staff = DEFAULT_PACKERS[item.staffIdx % DEFAULT_PACKERS.length];
+    const pkgTypes: Array<'box' | 'bag' | 'envelope'> = ['box', 'box', 'bag', 'box', 'envelope', 'box', 'bag', 'box'];
+    const pType = pkgTypes[idx % pkgTypes.length];
+    const pSize = pType === 'box' ? (idx % 2 === 0 ? 'เบอร์ B' : 'เบอร์ A') : pType === 'bag' ? 'ถุง 25 x 35 cm' : 'บับเบิ้ล A4';
+    const pDim = pType === 'box' ? (idx % 2 === 0 ? '17 x 25 x 9 cm' : '14 x 20 x 6 cm') : pType === 'bag' ? '25 x 35 cm' : '22 x 30 cm';
+
     records.push({
       id: `PK-${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${idx + 101}`,
       stationId: item.station,
@@ -32,6 +37,9 @@ export function getInitialPackRecords(): PackRecord[] {
       operatorName: `${staff.name} (${staff.nickname})`,
       trackingNumber: item.code,
       courier,
+      packagingType: pType,
+      packagingSize: pSize,
+      packagingDimensions: pDim,
       timestamp,
       durationSec: item.dur,
       uploadStatus: 'success',

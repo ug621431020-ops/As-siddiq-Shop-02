@@ -7,6 +7,7 @@ interface GoogleSignInButtonProps {
   disabled?: boolean;
   text?: string;
   size?: 'sm' | 'md' | 'lg';
+  className?: string;
 }
 
 export const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
@@ -15,11 +16,12 @@ export const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
   disabled = false,
   text = 'Sign in with Google',
   size = 'md',
+  className = '',
 }) => {
   const sizeClasses = {
-    sm: 'h-9 px-3 text-xs gap-2',
-    md: 'h-10 px-4 text-sm gap-2.5',
-    lg: 'h-12 px-5 text-base gap-3',
+    sm: 'h-8.5 px-3 text-xs gap-2',
+    md: 'h-10 px-3.5 sm:px-4 text-xs sm:text-sm gap-2 sm:gap-2.5',
+    lg: 'h-11 sm:h-12 px-4 sm:px-5 text-sm sm:text-base gap-2.5 sm:gap-3',
   }[size];
 
   return (
@@ -28,7 +30,7 @@ export const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
       type="button"
       onClick={onClick}
       disabled={disabled || isLoading}
-      className={`inline-flex items-center justify-center font-medium text-slate-700 bg-white border border-stone-300 rounded-xl hover:bg-stone-50 active:bg-stone-100 shadow-xs hover:shadow transition disabled:opacity-60 disabled:cursor-not-allowed ${sizeClasses}`}
+      className={`inline-flex items-center justify-center font-medium text-slate-700 bg-white border border-stone-300 rounded-xl hover:bg-stone-50 active:bg-stone-100 shadow-xs hover:shadow transition disabled:opacity-60 disabled:cursor-not-allowed max-w-full ${sizeClasses} ${className}`}
     >
       {isLoading ? (
         <Loader2 className="w-4 h-4 animate-spin text-stone-500" />

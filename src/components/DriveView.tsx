@@ -210,26 +210,31 @@ export const DriveView: React.FC<DriveViewProps> = ({
   // 1. Unauthenticated state
   if (!user || !accessToken) {
     return (
-      <div className="bg-white rounded-3xl p-8 md:p-12 border border-stone-200/90 shadow-sm max-w-2xl mx-auto my-6 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-5 shadow-xs">
-          <HardDrive className="w-8 h-8" />
-        </div>
-        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">เชื่อมต่อ Google Drive</h2>
-        <p className="text-sm text-stone-500 mt-2 max-w-md mx-auto leading-relaxed">
-          สำรองภาพถ่ายหลักฐานพร้อมลายน้ำ และคลิปวิดีโอการแพ็คพัสดุขึ้นบน Google Drive ของคุณโดยตรง เพื่อใช้เป็นลิงก์หลักฐานยื่นข้อพิพาทบน Marketplace หรือส่งให้ลูกค้าได้ทันที
-        </p>
+      <div className="w-full flex items-center justify-center p-1 sm:p-3">
+        <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-7 md:p-8 border border-stone-200/90 shadow-xs max-w-md sm:max-w-lg w-full text-center">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-3.5 shadow-2xs">
+            <HardDrive className="w-6 h-6 sm:w-7 sm:h-7" />
+          </div>
+          <h2 className="text-base sm:text-lg md:text-xl font-bold text-slate-900 tracking-tight">
+            เชื่อมต่อ Google Drive
+          </h2>
+          <p className="text-xs sm:text-sm text-stone-500 mt-1.5 max-w-sm mx-auto leading-relaxed">
+            สำรองภาพถ่ายและคลิปวิดีโอขึ้นคลังจัดเก็บ Google Drive เพื่อส่งลิงก์หลักฐานให้ลูกค้าหรือยื่นข้อพิพาทได้ทันที
+          </p>
 
-        <div className="mt-8 flex flex-col items-center gap-3">
-          <GoogleSignInButton
-            onClick={onSignIn}
-            isLoading={loadingAuth}
-            text="เข้าสู่ระบบด้วย Google เพื่อเปิดใช้งาน Drive"
-            size="lg"
-          />
-          <span className="text-[11px] text-stone-400 flex items-center gap-1.5 mt-2">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-            ระบบจะสร้างโฟลเดอร์ <span className="font-mono text-stone-600">PackSpace_Proofs</span> ให้โดยอัตโนมัติ
-          </span>
+          <div className="mt-5 sm:mt-6 flex flex-col items-center gap-2.5 w-full">
+            <GoogleSignInButton
+              onClick={onSignIn}
+              isLoading={loadingAuth}
+              text="เข้าสู่ระบบด้วย Google"
+              size="md"
+              className="w-full max-w-xs shadow-xs"
+            />
+            <span className="text-[11px] text-stone-400 flex items-center justify-center gap-1.5 mt-1 text-center">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <span>สร้างโฟลเดอร์ PackSpace_Proofs อัตโนมัติ</span>
+            </span>
+          </div>
         </div>
       </div>
     );
@@ -237,26 +242,26 @@ export const DriveView: React.FC<DriveViewProps> = ({
 
   // 2. Authenticated state
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-5">
       
       {/* Top Banner & Account Status */}
-      <div className="bg-white rounded-3xl p-5 md:p-6 border border-stone-200/90 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="flex items-center gap-3.5 min-w-0">
+      <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-5 md:p-6 border border-stone-200/90 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+        <div className="flex items-center gap-3 min-w-0">
           {user.photoURL ? (
             <img 
               src={user.photoURL} 
               alt={user.displayName || 'Google User'} 
-              className="w-12 h-12 rounded-2xl border border-stone-200 shadow-xs shrink-0" 
+              className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl border border-stone-200 shadow-2xs shrink-0" 
             />
           ) : (
-            <div className="w-12 h-12 rounded-2xl bg-[#f06b4b]/10 text-[#f06b4b] flex items-center justify-center font-bold text-lg shrink-0">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#f06b4b]/10 text-[#f06b4b] flex items-center justify-center font-bold text-base shrink-0">
               {(user.displayName || user.email || 'G').charAt(0)}
             </div>
           )}
           <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <h2 className="text-lg font-bold text-slate-900 truncate">{user.displayName || 'Google Account'}</h2>
-              <span className="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-full border border-emerald-200">
+            <div className="flex items-center gap-1.5">
+              <h2 className="text-sm sm:text-base font-bold text-slate-900 truncate">{user.displayName || 'Google Account'}</h2>
+              <span className="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-1.5 py-0.5 rounded border border-emerald-200">
                 Connected
               </span>
             </div>
@@ -265,19 +270,19 @@ export const DriveView: React.FC<DriveViewProps> = ({
         </div>
 
         {/* Quota & Action Buttons */}
-        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-start sm:justify-end">
           {storageQuota?.limit && (
-            <div className="text-right hidden sm:block">
-              <div className="text-[11px] text-stone-400">พื้นที่ Google Drive:</div>
+            <div className="text-right hidden md:block">
+              <div className="text-[11px] text-stone-400">พื้นที่ Drive:</div>
               <div className="text-xs font-mono font-bold text-slate-700">
                 {formatBytes(storageQuota.usage)} / {formatBytes(storageQuota.limit)}
               </div>
             </div>
           )}
 
-          <label className="cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-stone-100 hover:bg-stone-200/70 text-slate-700 text-xs font-semibold transition">
-            <Plus className="w-4 h-4" />
-            <span>อัปโหลดไฟล์เพิ่ม</span>
+          <label className="cursor-pointer inline-flex items-center gap-1.5 h-8 px-2.5 sm:px-3 rounded-lg bg-stone-100 hover:bg-stone-200/70 text-slate-700 text-xs font-semibold transition">
+            <Plus className="w-3.5 h-3.5" />
+            <span>อัปโหลด</span>
             <input
               type="file"
               onChange={handleManualFileUpload}
@@ -287,8 +292,9 @@ export const DriveView: React.FC<DriveViewProps> = ({
           </label>
 
           <button
+            type="button"
             onClick={onSignOut}
-            className="px-3.5 py-2 rounded-xl border border-stone-200 text-stone-500 hover:text-stone-700 hover:bg-stone-50 text-xs font-semibold transition"
+            className="h-8 px-2.5 sm:px-3 rounded-lg border border-stone-200 text-stone-500 hover:text-stone-700 hover:bg-stone-50 text-xs font-semibold transition"
           >
             ออกจากระบบ
           </button>
@@ -296,16 +302,16 @@ export const DriveView: React.FC<DriveViewProps> = ({
       </div>
 
       {/* Auto Backup Toggle & Folder Info Card */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4">
         {/* Card 1: Dedicated Folder */}
-        <div className="bg-white rounded-2xl p-4 border border-stone-200/80 shadow-xs flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-              <FolderCheck className="w-5 h-5" />
+        <div className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-3.5 border border-stone-200/80 shadow-xs flex items-center justify-between">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+              <FolderCheck className="w-4 h-4" />
             </div>
-            <div>
-              <span className="text-[11px] uppercase font-bold text-stone-400 block">โฟลเดอร์จัดเก็บ</span>
-              <span className="text-sm font-mono font-bold text-slate-800 block">PackSpace_Proofs/</span>
+            <div className="min-w-0">
+              <span className="text-[10px] uppercase font-bold text-stone-400 block">โฟลเดอร์</span>
+              <span className="text-xs font-mono font-bold text-slate-800 truncate block">PackSpace_Proofs/</span>
             </div>
           </div>
           {folderId && (
@@ -313,8 +319,8 @@ export const DriveView: React.FC<DriveViewProps> = ({
               href={`https://drive.google.com/drive/folders/${folderId}`}
               target="_blank"
               rel="noreferrer"
-              className="p-2 text-stone-400 hover:text-[#f06b4b] rounded-lg"
-              title="เปิดใน Google Drive"
+              className="p-1.5 text-stone-400 hover:text-[#f06b4b] rounded-lg"
+              title="เปิดใน Drive"
             >
               <ExternalLink className="w-4 h-4" />
             </a>
@@ -322,53 +328,54 @@ export const DriveView: React.FC<DriveViewProps> = ({
         </div>
 
         {/* Card 2: Auto Backup Switch */}
-        <div className="bg-white rounded-2xl p-4 border border-stone-200/80 shadow-xs flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+        <div className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-3.5 border border-stone-200/80 shadow-xs flex items-center justify-between">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
               autoUploadToDrive ? 'bg-emerald-50 text-emerald-600' : 'bg-stone-100 text-stone-400'
             }`}>
-              <CloudUpload className="w-5 h-5" />
+              <CloudUpload className="w-4 h-4" />
             </div>
-            <div>
-              <span className="text-[11px] uppercase font-bold text-stone-400 block">สำรองอัตโนมัติ</span>
-              <span className="text-sm font-bold text-slate-800 block">
-                {autoUploadToDrive ? 'เปิดใช้งาน (Auto-sync)' : 'ปิดอยู่ (Manual only)'}
+            <div className="min-w-0">
+              <span className="text-[10px] uppercase font-bold text-stone-400 block">สำรองอัตโนมัติ</span>
+              <span className="text-xs font-bold text-slate-800 block">
+                {autoUploadToDrive ? 'เปิด (Auto)' : 'ปิด (Manual)'}
               </span>
             </div>
           </div>
           <button
             type="button"
             onClick={() => setAutoUploadToDrive(!autoUploadToDrive)}
-            className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer ${
+            className={`w-10 h-5.5 rounded-full transition-colors relative cursor-pointer shrink-0 ${
               autoUploadToDrive ? 'bg-[#f06b4b]' : 'bg-stone-300'
             }`}
           >
             <span
-              className={`block w-4 h-4 rounded-full bg-white transition-transform transform shadow-xs ${
-                autoUploadToDrive ? 'translate-x-6' : 'translate-x-1'
+              className={`block w-3.5 h-3.5 rounded-full bg-white transition-transform transform shadow-xs ${
+                autoUploadToDrive ? 'translate-x-5' : 'translate-x-1'
               }`}
             />
           </button>
         </div>
 
         {/* Card 3: Files count */}
-        <div className="bg-white rounded-2xl p-4 border border-stone-200/80 shadow-xs flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-orange-50 text-[#f06b4b] flex items-center justify-center shrink-0">
-              <HardDrive className="w-5 h-5" />
+        <div className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-3.5 border border-stone-200/80 shadow-xs flex items-center justify-between">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-9 h-9 rounded-xl bg-orange-50 text-[#f06b4b] flex items-center justify-center shrink-0">
+              <HardDrive className="w-4 h-4" />
             </div>
-            <div>
-              <span className="text-[11px] uppercase font-bold text-stone-400 block">ไฟล์ในคลาวด์</span>
-              <span className="text-sm font-bold text-slate-800 block">{files.length} รายการ</span>
+            <div className="min-w-0">
+              <span className="text-[10px] uppercase font-bold text-stone-400 block">ไฟล์ในระบบ</span>
+              <span className="text-xs font-bold text-slate-800 block">{files.length} รายการ</span>
             </div>
           </div>
           <button
+            type="button"
             onClick={loadDriveData}
             disabled={loading}
-            className="p-2 text-stone-400 hover:text-stone-600 rounded-lg"
-            title="รีเฟรชรายการ"
+            className="p-1.5 text-stone-400 hover:text-stone-600 rounded-lg"
+            title="รีเฟรช"
           >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
           </button>
         </div>
       </div>
@@ -383,29 +390,30 @@ export const DriveView: React.FC<DriveViewProps> = ({
 
       {/* Quick Sync from local records (if any record isn't on drive yet) */}
       {records.length > 0 && (
-        <div className="bg-stone-50 rounded-2xl p-4 border border-stone-200/70">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-stone-500">
-              ซิงค์หลักฐานจากเครื่องขึ้น Google Drive:
+        <div className="bg-stone-50 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-stone-200/70">
+          <div className="flex items-center justify-between mb-2.5">
+            <span className="text-xs font-bold text-stone-600">
+              ซิงค์หลักฐานขึ้น Google Drive:
             </span>
-            <span className="text-[11px] text-stone-400">เลือกพัสดุที่ต้องการส่งขึ้นคลาวด์</span>
+            <span className="text-[11px] text-stone-400">เลือกพัสดุเพื่อสำรอง</span>
           </div>
-          <div className="flex gap-2 overflow-x-auto pb-2">
+          <div className="flex gap-2 overflow-x-auto pb-1.5">
             {records.slice(0, 6).map((rec) => (
               <div 
                 key={rec.id} 
-                className="bg-white border border-stone-200 rounded-xl p-2.5 min-w-[200px] shrink-0 shadow-xs flex items-center justify-between"
+                className="bg-white border border-stone-200 rounded-xl p-2.5 min-w-[190px] shrink-0 shadow-2xs flex items-center justify-between"
               >
                 <div>
                   <div className="font-mono text-xs font-bold text-slate-800">{rec.trackingNumber}</div>
                   <div className="text-[10px] text-stone-400">{rec.courier.name} • {rec.durationSec}s</div>
                 </div>
                 <button
+                  type="button"
                   onClick={() => handleUploadRecordProof(rec)}
                   disabled={isUploading}
-                  className="px-2.5 py-1 rounded-lg bg-[#f06b4b] hover:bg-[#e05a3a] text-white text-[11px] font-bold shadow-xs transition shrink-0"
+                  className="px-2 py-1 rounded-lg bg-[#f06b4b] hover:bg-[#e05a3a] text-white text-[11px] font-bold shadow-xs transition shrink-0"
                 >
-                  ส่งขึ้น Drive
+                  ส่งขึ้นคลาวด์
                 </button>
               </div>
             ))}
@@ -414,17 +422,17 @@ export const DriveView: React.FC<DriveViewProps> = ({
       )}
 
       {/* Drive File Browser & Search */}
-      <div className="bg-white rounded-3xl border border-stone-200/90 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl sm:rounded-3xl border border-stone-200/90 shadow-xs overflow-hidden">
         {/* Filter bar */}
-        <div className="p-4 border-b border-stone-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="p-3.5 sm:p-4 border-b border-stone-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3">
           <div className="relative flex-1 max-w-md">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
+            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
             <input
               type="text"
-              placeholder="ค้นหาเลขพัสดุ หรือชื่อไฟล์ใน Drive..."
+              placeholder="ค้นหาเลขพัสดุ หรือชื่อไฟล์..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3.5 py-2 rounded-xl border border-stone-200 bg-stone-50 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#f06b4b]/20 focus:border-[#f06b4b]"
+              className="w-full h-8.5 pl-8 pr-3 text-xs rounded-lg border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#f06b4b] focus:border-[#f06b4b]"
             />
           </div>
 
@@ -444,22 +452,22 @@ export const DriveView: React.FC<DriveViewProps> = ({
         {/* Files Table */}
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-stone-50 border-b border-stone-200 text-stone-400 uppercase font-bold text-[10px] tracking-wider">
+            <thead className="bg-stone-50 border-b border-stone-200 text-stone-500 uppercase font-semibold text-[10px] tracking-wider">
               <tr>
-                <th className="px-5 py-3">ประเภท & ชื่อไฟล์</th>
-                <th className="px-4 py-3">ขนาด</th>
-                <th className="px-4 py-3">วันที่บันทึก</th>
-                <th className="px-4 py-3 text-right">ลิงก์ & การจัดการ</th>
+                <th className="px-3.5 py-2.5">ชื่อไฟล์</th>
+                <th className="px-3 py-2.5">ขนาด</th>
+                <th className="px-3 py-2.5">วันที่</th>
+                <th className="px-3 py-2.5 text-right">จัดการ</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
               {files.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="py-12 text-center text-stone-400">
-                    <CloudUpload className="w-8 h-8 mx-auto mb-2 opacity-40" />
-                    <div>ยังไม่มีไฟล์หลักฐานในโฟลเดอร์ PackSpace_Proofs</div>
-                    <div className="text-[11px] mt-1 text-stone-400">
-                      เมื่อบันทึกการแพ็คพัสดุสำเร็จ หรือกด "ส่งขึ้น Drive" ไฟล์จะปรากฏที่นี่ทันที
+                  <td colSpan={4} className="py-10 text-center text-stone-400">
+                    <CloudUpload className="w-7 h-7 mx-auto mb-1.5 opacity-40" />
+                    <div>ยังไม่มีไฟล์หลักฐานใน Drive</div>
+                    <div className="text-[11px] mt-0.5 text-stone-400">
+                      เมื่อบันทึกการแพ็คพัสดุสำเร็จ ไฟล์จะปรากฏที่นี่
                     </div>
                   </td>
                 </tr>
@@ -470,29 +478,29 @@ export const DriveView: React.FC<DriveViewProps> = ({
 
                   return (
                     <tr key={file.id} className="hover:bg-stone-50/80 transition">
-                      <td className="px-5 py-3.5 font-medium text-slate-800">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                      <td className="px-3.5 py-2.5 font-medium text-slate-800">
+                        <div className="flex items-center gap-2.5">
+                          <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
                             isVideo ? 'bg-purple-50 text-purple-600' : 'bg-emerald-50 text-emerald-600'
                           }`}>
-                            {isVideo ? <FileVideo className="w-4 h-4" /> : <ImageIcon className="w-4 h-4" />}
+                            {isVideo ? <FileVideo className="w-3.5 h-3.5" /> : <ImageIcon className="w-3.5 h-3.5" />}
                           </div>
                           <div className="min-w-0">
-                            <span className="font-mono font-bold text-slate-900 block truncate max-w-xs md:max-w-md">
+                            <span className="font-mono font-bold text-slate-900 block truncate max-w-xs md:max-w-md text-xs">
                               {file.name}
                             </span>
                             <span className="text-[10px] text-stone-400 block font-normal">
-                              {isVideo ? 'วิดีโอบันทึก' : 'ภาพถ่ายพร้อมลายน้ำ'}
+                              {isVideo ? 'วิดีโอ' : 'ภาพถ่าย'}
                             </span>
                           </div>
                         </div>
                       </td>
 
-                      <td className="px-4 py-3.5 font-mono text-stone-500">
+                      <td className="px-3 py-2.5 font-mono text-stone-500 text-xs">
                         {file.size ? formatBytes(Number(file.size)) : '-'}
                       </td>
 
-                      <td className="px-4 py-3.5 text-stone-500">
+                      <td className="px-3 py-2.5 text-stone-500 text-xs">
                         {file.createdTime
                           ? new Date(file.createdTime).toLocaleString('th-TH', {
                               dateStyle: 'short',
@@ -501,20 +509,21 @@ export const DriveView: React.FC<DriveViewProps> = ({
                           : '-'}
                       </td>
 
-                      <td className="px-4 py-3.5 text-right">
+                      <td className="px-3 py-2.5 text-right">
                         <div className="flex items-center justify-end gap-1.5">
                           {/* Copy Link Button */}
                           <button
+                            type="button"
                             onClick={() => handleCopyLink(file)}
-                            className={`p-1.5 rounded-lg border text-xs font-semibold flex items-center gap-1 transition ${
+                            className={`h-7 px-2 rounded-md border text-xs font-semibold flex items-center gap-1 transition ${
                               isCopied
                                 ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
                                 : 'bg-white text-stone-600 hover:bg-stone-100 border-stone-200'
                             }`}
-                            title="คัดลอกลิงก์ส่งให้ลูกค้า/มาร์เก็ตเพลส"
+                            title="คัดลอกลิงก์"
                           >
-                            {isCopied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                            <span className="hidden md:inline">{isCopied ? 'คัดลอกแล้ว' : 'แชร์ลิงก์'}</span>
+                            {isCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                            <span className="hidden md:inline">{isCopied ? 'คัดลอกแล้ว' : 'แชร์'}</span>
                           </button>
 
                           {/* Open in Drive */}
@@ -523,8 +532,8 @@ export const DriveView: React.FC<DriveViewProps> = ({
                               href={file.webViewLink}
                               target="_blank"
                               rel="noreferrer"
-                              className="p-1.5 rounded-lg border border-stone-200 bg-white hover:bg-stone-100 text-stone-600 transition"
-                              title="เปิดดูใน Google Drive"
+                              className="h-7 w-7 rounded-md border border-stone-200 bg-white hover:bg-stone-100 text-stone-600 transition inline-flex items-center justify-center"
+                              title="เปิดใน Drive"
                             >
                               <ExternalLink className="w-3.5 h-3.5" />
                             </a>
@@ -532,9 +541,10 @@ export const DriveView: React.FC<DriveViewProps> = ({
 
                           {/* Delete File (Triggers Mandatory Confirmation Dialog) */}
                           <button
+                            type="button"
                             onClick={() => setDeletingFile(file)}
-                            className="p-1.5 rounded-lg border border-stone-200 bg-white hover:bg-red-50 text-stone-400 hover:text-red-600 transition"
-                            title="ลบไฟล์ออกจาก Google Drive"
+                            className="h-7 w-7 rounded-md border border-stone-200 bg-white hover:bg-red-50 text-stone-400 hover:text-red-600 transition inline-flex items-center justify-center"
+                            title="ลบไฟล์"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>

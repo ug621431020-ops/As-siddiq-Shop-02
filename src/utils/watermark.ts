@@ -5,6 +5,7 @@ export interface WatermarkData {
   durationSec: number;
   operatorName?: string;
   operatorId?: string;
+  packageInfo?: string;
 }
 
 /**
@@ -29,8 +30,24 @@ export async function captureVideoFrameWithWatermark(
         throw new Error('Canvas 2D context unavailable');
       }
 
-      // 1. Draw live video frame
-      ctx.drawImage(videoEl, 0, 0, width, height);
+      // 1. Draw live video frame safely
+      try {
+        if (videoEl && videoEl.videoWidth > 0 && videoEl.videoHeight > 0) {
+          ctx.drawImage(videoEl, 0, 0, width, height);
+        } else {
+          const bgGrad = ctx.createLinearGradient(0, 0, width, height);
+          bgGrad.addColorStop(0, '#1e293b');
+          bgGrad.addColorStop(1, '#0f172a');
+          ctx.fillStyle = bgGrad;
+          ctx.fillRect(0, 0, width, height);
+        }
+      } catch {
+        const bgGrad = ctx.createLinearGradient(0, 0, width, height);
+        bgGrad.addColorStop(0, '#1e293b');
+        bgGrad.addColorStop(1, '#0f172a');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, width, height);
+      }
 
       if (applyWatermark) {
         // Overlay styling
@@ -73,7 +90,8 @@ export async function captureVideoFrameWithWatermark(
 
         ctx.fillStyle = '#cbd5e1';
         ctx.font = `400 ${Math.max(12, Math.round(height * 0.019))}px 'Prompt', sans-serif`;
-        ctx.fillText(`ขนส่ง: ${data.courierName} | บันทึก: ${data.durationSec}s`, centerX, centerY + 12);
+        const packageText = data.packageInfo ? ` | ${data.packageInfo}` : '';
+        ctx.fillText(`ขนส่ง: ${data.courierName}${packageText} | บันทึก: ${data.durationSec}s`, centerX, centerY + 12);
 
         // Right section: Timestamp
         const now = new Date();

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Scan, 
   Square, 
@@ -13,10 +13,15 @@ import {
   Building, 
   ChevronDown,
   Settings,
-  ShieldCheck
+  ShieldCheck,
+  Package
 } from 'lucide-react';
-import { RecordStatus, CourierInfo, PackingStation, PackerStaff } from '../types';
+import { RecordStatus, CourierInfo, PackingStation, PackerStaff, PackagingType } from '../types';
 import { DEFAULT_PACKERS, DEFAULT_STATIONS } from '../utils/staffData';
+import { 
+  PACKAGING_TYPE_LABELS, 
+  getSizesByType 
+} from '../utils/packagingData';
 
 interface PackingControlsProps {
   stationId: string;
@@ -37,6 +42,12 @@ interface PackingControlsProps {
   customCourierName?: string;
   setCustomCourierName?: (name: string) => void;
   courierLogoUrl?: string;
+  packagingType?: PackagingType;
+  setPackagingType?: (type: PackagingType) => void;
+  selectedPackageSizeId?: string;
+  setSelectedPackageSizeId?: (id: string) => void;
+  customPackageDimension?: string;
+  setCustomPackageDimension?: (dim: string) => void;
   recordStatus: RecordStatus;
   onStartRecord: () => void;
   onStopAndCapture: () => void;
@@ -71,6 +82,12 @@ export const PackingControls: React.FC<PackingControlsProps> = ({
   customCourierName = '',
   setCustomCourierName,
   courierLogoUrl,
+  packagingType,
+  setPackagingType,
+  selectedPackageSizeId,
+  setSelectedPackageSizeId,
+  customPackageDimension = '',
+  setCustomPackageDimension,
   recordStatus,
   onStartRecord,
   onStopAndCapture,
@@ -79,6 +96,23 @@ export const PackingControls: React.FC<PackingControlsProps> = ({
   alertInfo,
 }) => {
   const isInputsLocked = recordStatus === 'recording' || recordStatus === 'stopping' || recordStatus === 'uploading';
+
+  // Internal state fallback if not controlled
+  const [internalPkgType, setInternalPkgType] = useState<PackagingType>('box');
+  const [internalPkgSizeId, setInternalPkgSizeId] = useState<string>('box-B');
+  const [internalCustomDim, setInternalCustomDim] = useState<string>('');
+
+  const activePackagingType = packagingType ?? internalPkgType;
+  const setActivePackagingType = setPackagingType ?? setInternalPkgType;
+
+  const activePkgSizeId = selectedPackageSizeId ?? internalPkgSizeId;
+  const setActivePkgSizeId = setSelectedPackageSizeId ?? setInternalPkgSizeId;
+
+  const activeCustomDim = customPackageDimension ?? internalCustomDim;
+  const setActiveCustomDim = setCustomPackageDimension ?? setInternalCustomDim;
+
+  const currentTypeSizes = getSizesByType(activePackagingType);
+  const currentSelectedSize = currentTypeSizes.find((s) => s.id === activePkgSizeId) || currentTypeSizes[0];
 
   // Find active packer object from current packers list
   const currentPacker = packers.find((p) => p.id === operatorId) || packers[0] || DEFAULT_PACKERS[0];
@@ -333,9 +367,19 @@ export const PackingControls: React.FC<PackingControlsProps> = ({
               <Scan className="w-4 h-4 text-[#f06b4b]" />
               <span>เลขพัสดุ</span>
             </label>
-            <span className="text-[11px] text-stone-400">
-              Enter เพื่อเริ่ม
-            </span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setTrackingNumber(`TH${Math.floor(1000000000 + Math.random() * 9000000000)}`)}
+                className="text-[11px] text-[#f06b4b] hover:text-[#d95535] font-medium transition cursor-pointer"
+                title="สุ่มเลขพัสดุสำหรับทดสอบระบบ"
+              >
+                + สุ่มเลขทดสอบ
+              </button>
+              <span className="text-[11px] text-stone-400">
+                (Enter)
+              </span>
+            </div>
           </div>
 
           <div className="relative">
@@ -417,6 +461,122 @@ export const PackingControls: React.FC<PackingControlsProps> = ({
           </div>
         </div>
 
+        {/* SECTION 3.5: ขนาดบรรจุภัณฑ์ (กล่อง / ถุง / ซอง) */}
+        <div className="mb-4 p-3 rounded-xl border border-stone-200 bg-stone-50/80">
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+              <Package className="w-3.5 h-3.5 text-[#f06b4b]" />
+              <span>ขนาดบรรจุภัณฑ์:</span>
+            </label>
+            <span className="text-[10px] font-semibold text-slate-700 bg-white px-2 py-0.5 rounded-full border border-stone-200 shadow-2xs">
+              {PACKAGING_TYPE_LABELS[activePackagingType].icon} {activePkgSizeId === 'custom' ? (activeCustomDim || 'กำหนดเอง') : (currentSelectedSize?.name || 'เลือกขนาด')}
+            </span>
+          </div>
+
+          {/* 3 Type Switch Buttons: กล่อง, ถุง, ซอง */}
+          <div className="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-stone-200/60 mb-2.5">
+            {(['box', 'bag', 'envelope'] as const).map((type) => {
+              const active = activePackagingType === type;
+              const info = PACKAGING_TYPE_LABELS[type];
+              return (
+                <button
+                  key={type}
+                  type="button"
+                  disabled={isInputsLocked}
+                  onClick={() => {
+                    setActivePackagingType(type);
+                    const sizes = getSizesByType(type);
+                    const defaultSize = sizes.find(s => s.popular) || sizes[0];
+                    if (defaultSize) {
+                      setActivePkgSizeId(defaultSize.id);
+                    }
+                  }}
+                  className={`h-8 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-60 ${
+                    active
+                      ? 'bg-[#f06b4b] text-white shadow-xs'
+                      : 'bg-white text-stone-600 hover:text-slate-900 border border-stone-200/80'
+                  }`}
+                >
+                  <span>{info.icon}</span>
+                  <span>{info.short}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Quick selection chips for the active packaging type */}
+          <div className="mb-2">
+            <div className="text-[10px] text-stone-400 font-medium mb-1">
+              ขนาดยอดนิยม ({PACKAGING_TYPE_LABELS[activePackagingType].label}):
+            </div>
+            <div className="flex gap-1.5 flex-wrap">
+              {currentTypeSizes.slice(0, 8).map((size) => {
+                const isSelected = activePkgSizeId === size.id;
+                return (
+                  <button
+                    key={size.id}
+                    type="button"
+                    disabled={isInputsLocked}
+                    onClick={() => setActivePkgSizeId(size.id)}
+                    className={`h-6.5 px-2 rounded-md text-[11px] font-medium transition cursor-pointer disabled:opacity-60 ${
+                      isSelected
+                        ? 'bg-slate-900 text-white font-bold shadow-2xs'
+                        : 'bg-white border border-stone-200 text-stone-700 hover:bg-stone-100 hover:border-stone-300'
+                    }`}
+                    title={`${size.name} (${size.dimensions}) - ${size.description || ''}`}
+                  >
+                    <span>{size.name.replace('ถุง ', '').replace('ซอง ', '')}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Full Dropdown for all sizes of active type */}
+          <div className="relative">
+            <select
+              value={activePkgSizeId}
+              disabled={isInputsLocked}
+              onChange={(e) => setActivePkgSizeId(e.target.value)}
+              className="w-full px-3 py-2 pr-10 text-xs font-medium rounded-xl border border-stone-300 bg-white text-slate-800 focus:border-[#f06b4b] focus:outline-none focus:ring-2 focus:ring-[#f06b4b]/20 min-h-[38px] appearance-none disabled:bg-stone-100 disabled:opacity-60 cursor-pointer"
+            >
+              {currentTypeSizes.map((size) => (
+                <option key={size.id} value={size.id}>
+                  {size.name} • {size.dimensions} {size.description ? `(${size.description})` : ''}
+                </option>
+              ))}
+              <option value="custom">กำหนดขนาดเอง (Custom Size)...</option>
+            </select>
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-stone-400">
+              <ChevronDown className="w-4 h-4" />
+            </div>
+          </div>
+
+          {/* Custom Size Input if selected */}
+          {activePkgSizeId === 'custom' && (
+            <div className="mt-2">
+              <input
+                type="text"
+                value={activeCustomDim}
+                disabled={isInputsLocked}
+                onChange={(e) => setActiveCustomDim(e.target.value)}
+                placeholder="ระบุขนาด เช่น 25 x 30 x 15 cm..."
+                className="w-full px-3 py-2 text-xs rounded-xl border border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#f06b4b]/20 min-h-[36px] text-slate-800"
+              />
+            </div>
+          )}
+
+          {/* Selected Size Dimension Badge */}
+          {currentSelectedSize && activePkgSizeId !== 'custom' && (
+            <div className="mt-2 flex items-center justify-between text-[11px] text-stone-500 bg-white/70 px-2.5 py-1.5 rounded-lg border border-stone-200/60">
+              <span>ขนาด: <strong className="font-mono text-slate-800">{currentSelectedSize.dimensions}</strong></span>
+              {currentSelectedSize.description && (
+                <span className="text-stone-400 truncate max-w-[170px]">{currentSelectedSize.description}</span>
+              )}
+            </div>
+          )}
+        </div>
+
         {/* SECTION 4: Action Buttons (Record / Stop) */}
         <div className="pt-1 flex flex-col gap-2">
           {recordStatus === 'recording' ? (
@@ -433,7 +593,7 @@ export const PackingControls: React.FC<PackingControlsProps> = ({
             <button
               id="btn-start-record"
               type="button"
-              disabled={isInputsLocked || !trackingNumber.trim()}
+              disabled={isInputsLocked}
               onClick={onStartRecord}
               className="w-full h-12 px-5 rounded-xl bg-[#f06b4b] hover:bg-[#e05837] disabled:bg-stone-200 disabled:text-stone-400 disabled:shadow-none text-white font-bold text-sm shadow-md shadow-[#f06b4b]/20 active:scale-[0.99] transition flex items-center justify-center gap-2 cursor-pointer"
             >

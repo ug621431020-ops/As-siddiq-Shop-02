@@ -292,7 +292,7 @@ export const Header: React.FC<HeaderProps> = ({
                         className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-stone-100 rounded-lg transition text-left min-h-[38px]"
                       >
                         <HardDrive className="w-4 h-4 text-emerald-600" />
-                        Google Drive
+                        ข้อมูล
                       </button>
                     )}
 

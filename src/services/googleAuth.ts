@@ -23,17 +23,14 @@ const effectiveConfig = {
 const app = getApps().length === 0 ? initializeApp(effectiveConfig) : getApp();
 export const auth = getAuth(app);
 
-// Google Auth Provider configured with Google Drive & Calendar scopes
+// Google Auth Provider configured with Google Drive scopes
 export const provider = new GoogleAuthProvider();
 
 // Add requested Workspace scopes
 export const SCOPES = [
   'https://www.googleapis.com/auth/drive',
   'https://www.googleapis.com/auth/drive.file',
-  'https://www.googleapis.com/auth/drive.readonly',
-  'https://www.googleapis.com/auth/calendar',
-  'https://www.googleapis.com/auth/calendar.events',
-  'https://www.googleapis.com/auth/calendar.readonly'
+  'https://www.googleapis.com/auth/drive.readonly'
 ];
 
 SCOPES.forEach((scope) => {
